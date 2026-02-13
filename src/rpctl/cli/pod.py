@@ -74,6 +74,14 @@ def create(
     region: list[str] = typer.Option([], help="Datacenter IDs [repeatable]"),
     min_vcpu: int | None = typer.Option(None, help="Min vCPUs per GPU (default: 2)"),
     min_ram: int | None = typer.Option(None, help="Min RAM per GPU in GB (default: 8)"),
+    docker_start_cmd: str | None = typer.Option(
+        None, "--docker-start-cmd", help="Docker start command (e.g., 'python handler.py')"
+    ),
+    entrypoint: str | None = typer.Option(None, "--entrypoint", help="Docker entrypoint override"),
+    public_ip: bool = typer.Option(False, "--public-ip", help="Request a public IP address"),
+    cuda_versions: list[str] = typer.Option(
+        [], "--cuda-version", help="Allowed CUDA versions [repeatable]"
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
 ) -> None:
     """Create a new GPU/CPU pod."""
@@ -132,6 +140,14 @@ def create(
         cli_overrides["min_vcpu_per_gpu"] = min_vcpu
     if min_ram is not None:
         cli_overrides["min_ram_per_gpu"] = min_ram
+    if docker_start_cmd is not None:
+        cli_overrides["docker_start_cmd"] = docker_start_cmd
+    if entrypoint is not None:
+        cli_overrides["docker_entrypoint"] = entrypoint
+    if public_ip:
+        cli_overrides["support_public_ip"] = True
+    if cuda_versions:
+        cli_overrides["allowed_cuda_versions"] = cuda_versions
 
     # Step 3: Merge preset + overrides, fill defaults
     from rpctl.services.preset_service import PresetService
@@ -275,6 +291,29 @@ def delete(
         svc = _get_pod_service(ctx)
         svc.delete_pod(pod_id)
         Console().print(f"[green]Pod {pod_id} deleted.[/green]")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def wait(
+    ctx: typer.Context,
+    pod_id: str = typer.Argument(help="Pod ID"),
+    timeout: int = typer.Option(300, help="Max seconds to wait"),
+    interval: int = typer.Option(5, help="Seconds between polls"),
+) -> None:
+    """Wait for a pod to reach RUNNING status."""
+    from rpctl.services.poll import PollTimeoutError
+
+    try:
+        svc = _get_pod_service(ctx)
+        pod = svc.wait_until_running(pod_id, timeout=timeout, interval=interval)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(pod, output_format=fmt, table_type="pod_detail")
+    except PollTimeoutError as e:
+        err_console.print(f"[red]Timeout:[/red] {e}")
+        raise typer.Exit(code=2) from None
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None

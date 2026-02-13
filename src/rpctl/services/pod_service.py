@@ -48,3 +48,27 @@ class PodService:
     def delete_pod(self, pod_id: str) -> dict[str, Any]:
         """Terminate and delete a pod."""
         return self._client.terminate_pod(pod_id)
+
+    def wait_until_running(
+        self,
+        pod_id: str,
+        *,
+        timeout: float = 300,
+        interval: float = 5,
+    ) -> Pod:
+        """Poll until pod status is RUNNING or timeout."""
+        from rpctl.services.poll import poll_until
+
+        result_pod: Pod | None = None
+
+        def check() -> tuple[bool, str]:
+            nonlocal result_pod
+            pod = self.get_pod(pod_id)
+            result_pod = pod
+            status = pod.status or pod.desired_status or "UNKNOWN"
+            done = status.upper() == "RUNNING"
+            return done, status
+
+        poll_until(check, timeout=timeout, interval=interval, label=f"pod {pod_id}")
+        assert result_pod is not None  # noqa: S101
+        return result_pod

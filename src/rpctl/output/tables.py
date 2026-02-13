@@ -267,6 +267,33 @@ def print_endpoint_detail(endpoint: Any) -> None:
     _detail_table(f"Endpoint — {endpoint.name or endpoint.id}", endpoint)
 
 
+def print_endpoint_health(health: Any) -> None:
+    """Render endpoint health status."""
+    if isinstance(health, dict):
+        table = Table(title="Endpoint Health")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", justify="right")
+
+        workers = health.get("workers", {})
+        jobs = health.get("jobs", {})
+
+        if isinstance(workers, dict):
+            for key, val in workers.items():
+                table.add_row(f"workers.{key}", str(val))
+        if isinstance(jobs, dict):
+            for key, val in jobs.items():
+                table.add_row(f"jobs.{key}", str(val))
+
+        # Top-level fields
+        for key in ("requestsPerMinute", "avgResponseTime", "queueLength"):
+            if key in health:
+                table.add_row(key, str(health[key]))
+
+        console.print(table)
+    else:
+        _detail_table("Endpoint Health", health)
+
+
 # --- Volume tables ---
 
 
