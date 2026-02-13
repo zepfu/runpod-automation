@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from rpctl.config.profiles import add_profile, use_profile
 from rpctl.config.settings import Settings
 from rpctl.errors import AuthenticationError, ConfigError

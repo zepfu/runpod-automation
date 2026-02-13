@@ -7,7 +7,6 @@ from unittest.mock import patch
 import httpx
 import pytest
 import respx
-
 from rpctl.api.graphql_client import GraphQLClient
 from rpctl.errors import ApiError, AuthenticationError
 
