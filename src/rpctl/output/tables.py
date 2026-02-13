@@ -294,6 +294,32 @@ def print_endpoint_health(health: Any) -> None:
         _detail_table("Endpoint Health", health)
 
 
+def print_endpoint_run_result(result: Any) -> None:
+    """Render endpoint run result."""
+    if isinstance(result, dict):
+        table = Table(title="Endpoint Run Result")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value")
+        for key, val in result.items():
+            table.add_row(str(key), str(val))
+        console.print(table)
+    else:
+        console.print(result)
+
+
+def print_endpoint_purge_result(result: Any) -> None:
+    """Render purge queue result."""
+    if isinstance(result, dict):
+        table = Table(title="Purge Queue Result")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value")
+        for key, val in result.items():
+            table.add_row(str(key), str(val))
+        console.print(table)
+    else:
+        console.print("[green]Queue purged.[/green]")
+
+
 # --- Volume tables ---
 
 
@@ -415,3 +441,55 @@ def print_preset_detail(preset: Any) -> None:
 def print_dry_run(params: Any) -> None:
     """Render create parameters as a preview table."""
     _detail_table("Dry Run — Parameters", params)
+
+
+# --- User tables ---
+
+
+def print_user_info(data: Any) -> None:
+    """Render user account info."""
+    if isinstance(data, dict):
+        table = Table(title="Account Info")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value")
+
+        if "id" in data:
+            table.add_row("ID", str(data["id"]))
+
+        pub_key = data.get("pubKey", "")
+        if pub_key:
+            # Show truncated key
+            display = pub_key[:40] + "..." if len(pub_key) > 40 else pub_key
+            table.add_row("SSH Key", display)
+        else:
+            table.add_row("SSH Key", "[dim]Not set[/dim]")
+
+        volumes = data.get("networkVolumes", [])
+        if volumes:
+            vol_strs = [
+                f"{v.get('name', v.get('id', '?'))} ({v.get('size', '?')} GB)" for v in volumes
+            ]
+            table.add_row("Volumes", "\n".join(vol_strs))
+        else:
+            table.add_row("Volumes", "[dim]None[/dim]")
+
+        console.print(table)
+    else:
+        console.print(data)
+
+
+# --- Registry tables ---
+
+
+def print_registry_detail(data: Any) -> None:
+    """Render registry auth detail."""
+    if isinstance(data, dict):
+        table = Table(title="Registry Auth")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value")
+        for key, val in data.items():
+            if key != "password":  # Never display passwords
+                table.add_row(str(key), str(val))
+        console.print(table)
+    else:
+        console.print(data)

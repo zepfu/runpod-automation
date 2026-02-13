@@ -261,6 +261,57 @@ def wait(
 
 
 @app.command()
+def run(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    input_json: str = typer.Option("{}", "--input", "-i", help="JSON input payload"),
+    sync: bool = typer.Option(True, "--sync/--async", help="Synchronous (default) or async"),
+    timeout: int = typer.Option(86400, help="Timeout for sync requests in seconds"),
+) -> None:
+    """Run a job on a serverless endpoint."""
+    import json as json_mod
+
+    try:
+        request_input = json_mod.loads(input_json)
+    except json_mod.JSONDecodeError as e:
+        err_console.print(f"[red]Invalid JSON input:[/red] {e}")
+        raise typer.Exit(code=1) from None
+
+    try:
+        svc = _get_endpoint_service(ctx)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        if sync:
+            result = svc.run_sync(endpoint_id, request_input, timeout)
+            output(result, output_format=fmt, table_type="endpoint_run_result")
+        else:
+            job_id = svc.run_async(endpoint_id, request_input)
+            Console().print(f"[green]Job submitted: {job_id}[/green]")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command("purge-queue")
+def purge_queue(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    confirm: bool = typer.Option(False, "--confirm", help="Skip confirmation prompt"),
+) -> None:
+    """Purge all queued jobs for an endpoint."""
+    if not confirm:
+        typer.confirm(f"Purge all queued jobs for endpoint {endpoint_id}?", abort=True)
+
+    try:
+        svc = _get_endpoint_service(ctx)
+        result = svc.purge_queue(endpoint_id)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(result, output_format=fmt, table_type="endpoint_purge_result")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
 def delete(
     ctx: typer.Context,
     endpoint_id: str = typer.Argument(help="Endpoint ID"),
