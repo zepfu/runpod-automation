@@ -83,7 +83,7 @@ class Settings:
 
     @property
     def active_profile(self) -> str:
-        return self._data.get("active_profile", "default")
+        return str(self._data.get("active_profile", "default"))
 
     @property
     def api_key(self) -> str:

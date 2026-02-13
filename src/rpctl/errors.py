@@ -1,5 +1,9 @@
 """Exception hierarchy for rpctl."""
 
+from __future__ import annotations
+
+from typing import Any
+
 
 class RpctlError(Exception):
     """Base exception for all rpctl errors."""
@@ -33,7 +37,7 @@ class ApiError(RpctlError):
         self,
         message: str,
         status_code: int | None = None,
-        response_body: dict | None = None,
+        response_body: dict[str, Any] | None = None,
     ):
         super().__init__(message)
         self.status_code = status_code

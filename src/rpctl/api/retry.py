@@ -92,7 +92,7 @@ def _calculate_delay(
 ) -> float:
     """Compute delay with exponential backoff, jitter, or Retry-After."""
     if retry_after is not None and retry_after > 0:
-        return min(retry_after, max_delay)
+        return float(min(retry_after, max_delay))
     delay = base * (2 ** (attempt - 1))
     jitter = random.uniform(0, delay * 0.5)  # noqa: S311
-    return min(delay + jitter, max_delay)
+    return float(min(delay + jitter, max_delay))

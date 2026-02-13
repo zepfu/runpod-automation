@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from rpctl.api.rest_client import RestClient
 from rpctl.models.volume import Volume
 
@@ -27,11 +29,11 @@ class VolumeService:
         raw = self._client.create_volume(name=name, size=size_gb, data_center_id=data_center_id)
         return Volume.from_api(raw)
 
-    def update_volume(self, volume_id: str, **kwargs) -> Volume:
+    def update_volume(self, volume_id: str, **kwargs: Any) -> Volume:
         """Update an existing volume (name, size)."""
         raw = self._client.update_volume(volume_id, **kwargs)
         return Volume.from_api(raw)
 
-    def delete_volume(self, volume_id: str) -> dict:
+    def delete_volume(self, volume_id: str) -> dict[str, Any]:
         """Delete a network volume."""
         return self._client.delete_volume(volume_id)

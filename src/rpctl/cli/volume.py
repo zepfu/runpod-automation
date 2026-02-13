@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 import typer
 from rich.console import Console
 
 from rpctl.errors import RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from rpctl.services.volume_service import VolumeService
+
 app = typer.Typer(no_args_is_help=True)
 err_console = Console(stderr=True)
 
 
-def _get_volume_service(ctx: typer.Context):
+def _get_volume_service(ctx: typer.Context) -> VolumeService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.volume_service import VolumeService
@@ -82,7 +87,7 @@ def update(
     size: int | None = typer.Option(None, help="New size in GB"),
 ) -> None:
     """Update a network volume."""
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if name is not None:
         kwargs["name"] = name
     if size is not None:

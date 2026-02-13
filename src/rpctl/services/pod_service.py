@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from rpctl.api.rest_client import RestClient
 from rpctl.models.pod import Pod, PodCreateParams
 
@@ -30,19 +32,19 @@ class PodService:
         raw = self._client.create_pod(**params.to_sdk_kwargs())
         return Pod.from_api(raw)
 
-    def stop_pod(self, pod_id: str) -> dict:
+    def stop_pod(self, pod_id: str) -> dict[str, Any]:
         """Stop a running pod."""
         return self._client.stop_pod(pod_id)
 
-    def start_pod(self, pod_id: str) -> dict:
+    def start_pod(self, pod_id: str) -> dict[str, Any]:
         """Start/resume a stopped pod."""
         return self._client.resume_pod(pod_id)
 
-    def restart_pod(self, pod_id: str) -> dict:
+    def restart_pod(self, pod_id: str) -> dict[str, Any]:
         """Restart a pod (stop then start)."""
         self._client.stop_pod(pod_id)
         return self._client.resume_pod(pod_id)
 
-    def delete_pod(self, pod_id: str) -> dict:
+    def delete_pod(self, pod_id: str) -> dict[str, Any]:
         """Terminate and delete a pod."""
         return self._client.terminate_pod(pod_id)
