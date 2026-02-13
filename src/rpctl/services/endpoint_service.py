@@ -42,6 +42,20 @@ class EndpointService:
         """Get endpoint health status (workers, jobs, queue)."""
         return self._client.endpoint_health(endpoint_id)
 
+    def run_sync(
+        self, endpoint_id: str, request_input: dict[str, Any], timeout: int = 86400
+    ) -> dict[str, Any]:
+        """Run a synchronous job on the endpoint."""
+        return self._client.endpoint_run_sync(endpoint_id, request_input, timeout)
+
+    def run_async(self, endpoint_id: str, request_input: dict[str, Any]) -> str:
+        """Submit an async job, return job ID."""
+        return self._client.endpoint_run_async(endpoint_id, request_input)
+
+    def purge_queue(self, endpoint_id: str) -> dict[str, Any]:
+        """Purge the endpoint's job queue."""
+        return self._client.endpoint_purge_queue(endpoint_id)
+
     def wait_until_ready(
         self,
         endpoint_id: str,

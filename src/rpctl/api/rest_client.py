@@ -77,6 +77,21 @@ class RestClient:
         ep = self._runpod.Endpoint(endpoint_id)
         return self._call(ep.health)  # type: ignore[no-any-return]
 
+    def endpoint_run_sync(
+        self, endpoint_id: str, request_input: dict[str, Any], timeout: int = 86400
+    ) -> dict[str, Any]:
+        ep = self._runpod.Endpoint(endpoint_id)
+        return self._call(ep.run_sync, request_input, timeout)  # type: ignore[no-any-return]
+
+    def endpoint_run_async(self, endpoint_id: str, request_input: dict[str, Any]) -> str:
+        ep = self._runpod.Endpoint(endpoint_id)
+        job = self._call(ep.run, request_input)
+        return job.job_id  # type: ignore[no-any-return]
+
+    def endpoint_purge_queue(self, endpoint_id: str) -> dict[str, Any]:
+        ep = self._runpod.Endpoint(endpoint_id)
+        return self._call(ep.purge_queue)  # type: ignore[no-any-return]
+
     # --- Templates ---
 
     def get_templates(self) -> list[dict[str, Any]]:
@@ -132,6 +147,33 @@ class RestClient:
 
     def get_gpu(self, gpu_id: str) -> dict[str, Any]:
         return self._call(self._runpod.get_gpu, gpu_id)  # type: ignore[no-any-return]
+
+    # --- Container Registry Auth ---
+
+    def create_registry_auth(self, name: str, username: str, password: str) -> dict[str, Any]:
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.create_container_registry_auth, name, username, password
+        )
+
+    def update_registry_auth(
+        self, registry_auth_id: str, username: str, password: str
+    ) -> dict[str, Any]:
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.update_container_registry_auth, registry_auth_id, username, password
+        )
+
+    def delete_registry_auth(self, registry_auth_id: str) -> dict[str, Any]:
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.delete_container_registry_auth, registry_auth_id
+        )
+
+    # --- User ---
+
+    def get_user(self) -> dict[str, Any]:
+        return self._call(self._runpod.get_user)  # type: ignore[no-any-return]
+
+    def update_user_settings(self, pubkey: str) -> dict[str, Any]:
+        return self._call(self._runpod.update_user_settings, pubkey)  # type: ignore[no-any-return]
 
     def _call(self, func: Any, *args: Any, **kwargs: Any) -> Any:
         """Call a runpod SDK function with retry on transient errors."""

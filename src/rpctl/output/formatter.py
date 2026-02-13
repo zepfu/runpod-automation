@@ -11,6 +11,8 @@ from rpctl.output.tables import (
     print_endpoint_detail,
     print_endpoint_health,
     print_endpoint_list,
+    print_endpoint_purge_result,
+    print_endpoint_run_result,
     print_gpu_check,
     print_gpu_compare,
     print_gpu_list,
@@ -19,8 +21,10 @@ from rpctl.output.tables import (
     print_preset_detail,
     print_preset_list,
     print_regions,
+    print_registry_detail,
     print_template_detail,
     print_template_list,
+    print_user_info,
     print_volume_detail,
     print_volume_list,
 )
@@ -37,6 +41,8 @@ TABLE_RENDERERS = {
     "endpoint_list": print_endpoint_list,
     "endpoint_detail": print_endpoint_detail,
     "endpoint_health": print_endpoint_health,
+    "endpoint_run_result": print_endpoint_run_result,
+    "endpoint_purge_result": print_endpoint_purge_result,
     "endpoint_create_dry_run": print_dry_run,
     "volume_list": print_volume_list,
     "volume_detail": print_volume_detail,
@@ -44,6 +50,8 @@ TABLE_RENDERERS = {
     "template_detail": print_template_detail,
     "preset_list": print_preset_list,
     "preset_detail": print_preset_detail,
+    "user_info": print_user_info,
+    "registry_detail": print_registry_detail,
 }
 
 
