@@ -95,7 +95,7 @@ class RestClient:
     def endpoint_job_status(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
         import httpx
 
-        url = f"https://api.runpod.ai/v2/{endpoint_id}" f"/status/{job_id}"
+        url = f"https://api.runpod.ai/v2/{endpoint_id}/status/{job_id}"
         headers = {
             "Authorization": f"Bearer {self._runpod.api_key}",
         }
@@ -106,7 +106,7 @@ class RestClient:
     def endpoint_job_cancel(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
         import httpx
 
-        url = f"https://api.runpod.ai/v2/{endpoint_id}" f"/cancel/{job_id}"
+        url = f"https://api.runpod.ai/v2/{endpoint_id}/cancel/{job_id}"
         headers = {
             "Authorization": f"Bearer {self._runpod.api_key}",
         }
