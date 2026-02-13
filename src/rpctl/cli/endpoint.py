@@ -49,6 +49,9 @@ def create(
     network_volume: str | None = typer.Option(None, help="Network volume ID"),
     flashboot: bool = typer.Option(False, help="Enable flashboot"),
     locations: str | None = typer.Option(None, help="Datacenter locations (comma-sep)"),
+    cuda_versions: list[str] = typer.Option(
+        [], "--cuda-version", help="Allowed CUDA versions [repeatable]"
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
 ) -> None:
     """Create a new serverless endpoint."""
@@ -95,6 +98,8 @@ def create(
         cli_overrides["flashboot"] = True
     if locations is not None:
         cli_overrides["locations"] = locations
+    if cuda_versions:
+        cli_overrides["allowed_cuda_versions"] = cuda_versions
 
     # Step 3: Merge
     from rpctl.services.preset_service import PresetService
@@ -306,6 +311,48 @@ def purge_queue(
         result = svc.purge_queue(endpoint_id)
         fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
         output(result, output_format=fmt, table_type="endpoint_purge_result")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command("job-status")
+def job_status(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    job_id: str = typer.Argument(help="Job ID"),
+) -> None:
+    """Get status of a specific job."""
+    try:
+        svc = _get_endpoint_service(ctx)
+        result = svc.job_status(endpoint_id, job_id)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(
+            result,
+            output_format=fmt,
+            table_type="endpoint_job_status",
+        )
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command("job-cancel")
+def job_cancel(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    job_id: str = typer.Argument(help="Job ID"),
+) -> None:
+    """Cancel a running or queued job."""
+    try:
+        svc = _get_endpoint_service(ctx)
+        result = svc.job_cancel(endpoint_id, job_id)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(
+            result,
+            output_format=fmt,
+            table_type="endpoint_job_status",
+        )
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None

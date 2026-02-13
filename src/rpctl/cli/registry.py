@@ -28,6 +28,19 @@ def _get_registry_service(ctx: typer.Context) -> RegistryService:
     return RegistryService(client)
 
 
+@app.command("list")
+def list_registries(ctx: typer.Context) -> None:
+    """List container registry credentials."""
+    try:
+        svc = _get_registry_service(ctx)
+        registries = svc.list()
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(registries, output_format=fmt, table_type="registry_list")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
 @app.command()
 def create(
     ctx: typer.Context,

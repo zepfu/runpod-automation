@@ -69,6 +69,7 @@ class EndpointCreateParams(BaseModel):
     network_volume_id: str | None = None
     flashboot: bool = False
     locations: str = ""
+    allowed_cuda_versions: list[str] | None = None
 
     def to_sdk_kwargs(self) -> dict[str, Any]:
         """Convert to kwargs for runpod.create_endpoint()."""
@@ -88,4 +89,6 @@ class EndpointCreateParams(BaseModel):
             kwargs["flashboot"] = True
         if self.locations:
             kwargs["locations"] = self.locations
+        if self.allowed_cuda_versions:
+            kwargs["allowed_cuda_versions"] = ",".join(self.allowed_cuda_versions)
         return kwargs

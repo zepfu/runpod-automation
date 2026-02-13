@@ -124,3 +124,20 @@ def compare(
 
         Console(stderr=True).print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def cpus(
+    ctx: typer.Context,
+) -> None:
+    """List all available CPU types."""
+    try:
+        svc = _get_capacity_service(ctx)
+        cpu_types = svc.list_cpu_types()
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(cpu_types, output_format=fmt, table_type="cpu_list")
+    except RpctlError as e:
+        from rich.console import Console
+
+        Console(stderr=True).print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None

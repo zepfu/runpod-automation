@@ -86,6 +86,10 @@ class PodCreateParams(BaseModel):
     interruptible: bool = False
     allowed_cuda_versions: list[str] = Field(default_factory=list)
     support_public_ip: bool = False
+    start_ssh: bool = True
+    country_code: str | None = None
+    min_download: int | None = None
+    min_upload: int | None = None
 
     def to_sdk_kwargs(self) -> dict[str, Any]:
         """Convert to kwargs for runpod.create_pod()."""
@@ -123,4 +127,12 @@ class PodCreateParams(BaseModel):
             kwargs["allowed_cuda_versions"] = self.allowed_cuda_versions
         if self.support_public_ip:
             kwargs["support_public_ip"] = True
+        if not self.start_ssh:
+            kwargs["start_ssh"] = False
+        if self.country_code:
+            kwargs["country_code"] = self.country_code
+        if self.min_download is not None:
+            kwargs["min_download"] = self.min_download
+        if self.min_upload is not None:
+            kwargs["min_upload"] = self.min_upload
         return kwargs
