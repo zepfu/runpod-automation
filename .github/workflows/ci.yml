@@ -40,7 +40,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install ".[dev]" pip-audit
-      - run: pip-audit --strict --desc --exclude rpctl
+      - run: pip freeze | grep -iv '^rpctl==' > /tmp/deps.txt
+      - run: pip-audit --strict --desc -r /tmp/deps.txt
 
   build:
     runs-on: ubuntu-latest
