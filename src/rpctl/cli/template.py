@@ -38,6 +38,15 @@ def create(
     volume_disk: int = typer.Option(0, help="Volume in GB"),
     ports: str | None = typer.Option(None, help="Ports to expose"),
     env: list[str] = typer.Option([], help="Environment variables (KEY=VALUE) [repeatable]"),
+    docker_start_cmd: str | None = typer.Option(
+        None, "--docker-start-cmd", help="Docker start command (e.g., 'python handler.py')"
+    ),
+    volume_mount_path: str | None = typer.Option(
+        None, "--volume-mount-path", help="Volume mount path (e.g., /workspace)"
+    ),
+    registry_auth: str | None = typer.Option(
+        None, "--registry-auth", help="Registry auth ID for private Docker images"
+    ),
     readme: str | None = typer.Option(None, help="Template description"),
 ) -> None:
     """Create a new template."""
@@ -60,6 +69,12 @@ def create(
         kwargs["ports"] = ports
     if env_dict:
         kwargs["env"] = env_dict
+    if docker_start_cmd:
+        kwargs["docker_start_cmd"] = docker_start_cmd
+    if volume_mount_path:
+        kwargs["volume_mount_path"] = volume_mount_path
+    if registry_auth:
+        kwargs["registry_auth_id"] = registry_auth
     if readme:
         kwargs["readme"] = readme
 
