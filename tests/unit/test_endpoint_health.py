@@ -176,3 +176,64 @@ def test_cli_endpoint_wait_api_error():
 
         result = runner.invoke(app, ["endpoint", "wait", "ep-abc"])
         assert result.exit_code == 1
+
+
+# --- EndpointCreateParams.to_sdk_kwargs() with cuda_versions ---
+
+
+def test_endpoint_create_params_cuda_versions():
+    """allowed_cuda_versions is joined and passed to SDK kwargs."""
+    from rpctl.models.endpoint import EndpointCreateParams
+
+    params = EndpointCreateParams(
+        name="test-ep",
+        template_id="tmpl-123",
+        allowed_cuda_versions=["11.8", "12.1"],
+    )
+    kwargs = params.to_sdk_kwargs()
+    assert kwargs["allowed_cuda_versions"] == "11.8,12.1"
+
+
+def test_endpoint_create_params_no_cuda_versions():
+    """allowed_cuda_versions is not included when None."""
+    from rpctl.models.endpoint import EndpointCreateParams
+
+    params = EndpointCreateParams(name="test-ep", template_id="tmpl-123")
+    kwargs = params.to_sdk_kwargs()
+    assert "allowed_cuda_versions" not in kwargs
+
+
+# --- CLI: rpctl endpoint create --cuda-version ---
+
+
+def test_cli_endpoint_create_cuda_version():
+    """--cuda-version is passed through to endpoint create."""
+    from rpctl.main import app
+    from rpctl.models.endpoint import Endpoint
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+
+    with patch("rpctl.cli.endpoint._get_endpoint_service") as mock_svc_fn:
+        mock_svc = MagicMock()
+        mock_svc.create_endpoint.return_value = Endpoint(id="ep-new", name="test-ep")
+        mock_svc_fn.return_value = mock_svc
+
+        result = runner.invoke(
+            app,
+            [
+                "endpoint",
+                "create",
+                "--name",
+                "test-ep",
+                "--template",
+                "tmpl-123",
+                "--cuda-version",
+                "11.8",
+                "--cuda-version",
+                "12.1",
+            ],
+        )
+        assert result.exit_code == 0
+        call_args = mock_svc.create_endpoint.call_args[0][0]
+        assert call_args.allowed_cuda_versions == ["11.8", "12.1"]

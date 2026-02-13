@@ -194,6 +194,34 @@ def print_regions(datacenters: list[Any]) -> None:
     console.print(f"\n[dim]{len(datacenters)} datacenters listed.[/dim]")
 
 
+def print_cpu_list(cpu_types: list[Any]) -> None:
+    """Render CPU types as a table."""
+    if not cpu_types:
+        console.print("[dim]No CPU types found.[/dim]")
+        return
+
+    table = Table(title="CPU Types")
+    table.add_column("ID", style="cyan", no_wrap=True)
+    table.add_column("Name")
+    table.add_column("Manufacturer")
+    table.add_column("Cores", justify="right")
+    table.add_column("Threads/Core", justify="right")
+    table.add_column("Group")
+
+    for cpu in cpu_types:
+        table.add_row(
+            cpu.id,
+            cpu.display_name,
+            cpu.manufacturer or "-",
+            str(cpu.cores) if cpu.cores else "-",
+            str(cpu.threads_per_core) if cpu.threads_per_core else "-",
+            cpu.group_id or "-",
+        )
+
+    console.print(table)
+    console.print(f"\n[dim]{len(cpu_types)} CPU types listed.[/dim]")
+
+
 # --- Pod tables ---
 
 
@@ -302,6 +330,22 @@ def print_endpoint_run_result(result: Any) -> None:
         table.add_column("Value")
         for key, val in result.items():
             table.add_row(str(key), str(val))
+        console.print(table)
+    else:
+        console.print(result)
+
+
+def print_endpoint_job_status(result: Any) -> None:
+    """Render endpoint job status."""
+    if isinstance(result, dict):
+        table = Table(title="Job Status")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value")
+        for key, val in result.items():
+            if key == "output" and isinstance(val, dict):
+                table.add_row("output", str(val)[:200])
+            else:
+                table.add_row(str(key), str(val))
         console.print(table)
     else:
         console.print(result)
@@ -479,6 +523,27 @@ def print_user_info(data: Any) -> None:
 
 
 # --- Registry tables ---
+
+
+def print_registry_list(registries: list[Any]) -> None:
+    """Render container registry auth entries as a table."""
+    if not registries:
+        console.print("[dim]No container registry credentials found.[/dim]")
+        return
+
+    table = Table(title="Container Registry Credentials")
+    table.add_column("ID", style="cyan", no_wrap=True)
+    table.add_column("Name")
+
+    for reg in registries:
+        if isinstance(reg, dict):
+            table.add_row(
+                str(reg.get("id", "-")),
+                str(reg.get("name", "-")),
+            )
+
+    console.print(table)
+    console.print(f"\n[dim]{len(registries)} registry credentials listed.[/dim]")
 
 
 def print_registry_detail(data: Any) -> None:

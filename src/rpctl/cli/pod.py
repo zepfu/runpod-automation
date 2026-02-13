@@ -82,6 +82,14 @@ def create(
     cuda_versions: list[str] = typer.Option(
         [], "--cuda-version", help="Allowed CUDA versions [repeatable]"
     ),
+    no_ssh: bool = typer.Option(False, "--no-ssh", help="Disable SSH access on the pod"),
+    country: str | None = typer.Option(None, "--country", help="Country code filter (e.g., US)"),
+    min_download: int | None = typer.Option(
+        None, "--min-download", help="Minimum download speed in Mbps"
+    ),
+    min_upload: int | None = typer.Option(
+        None, "--min-upload", help="Minimum upload speed in Mbps"
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
 ) -> None:
     """Create a new GPU/CPU pod."""
@@ -148,6 +156,14 @@ def create(
         cli_overrides["support_public_ip"] = True
     if cuda_versions:
         cli_overrides["allowed_cuda_versions"] = cuda_versions
+    if no_ssh:
+        cli_overrides["start_ssh"] = False
+    if country is not None:
+        cli_overrides["country_code"] = country
+    if min_download is not None:
+        cli_overrides["min_download"] = min_download
+    if min_upload is not None:
+        cli_overrides["min_upload"] = min_upload
 
     # Step 3: Merge preset + overrides, fill defaults
     from rpctl.services.preset_service import PresetService

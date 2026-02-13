@@ -52,6 +52,41 @@ def test_to_sdk_kwargs_support_public_ip():
     assert kwargs["support_public_ip"] is True
 
 
+def test_to_sdk_kwargs_start_ssh_disabled():
+    """start_ssh=False is passed through to SDK kwargs."""
+    params = PodCreateParams(image_name="test", start_ssh=False)
+    kwargs = params.to_sdk_kwargs()
+    assert kwargs["start_ssh"] is False
+
+
+def test_to_sdk_kwargs_start_ssh_default():
+    """start_ssh=True (default) is not included in SDK kwargs."""
+    params = PodCreateParams(image_name="test")
+    kwargs = params.to_sdk_kwargs()
+    assert "start_ssh" not in kwargs
+
+
+def test_to_sdk_kwargs_country_code():
+    """country_code is passed through to SDK kwargs."""
+    params = PodCreateParams(image_name="test", country_code="US")
+    kwargs = params.to_sdk_kwargs()
+    assert kwargs["country_code"] == "US"
+
+
+def test_to_sdk_kwargs_min_download():
+    """min_download is passed through to SDK kwargs."""
+    params = PodCreateParams(image_name="test", min_download=500)
+    kwargs = params.to_sdk_kwargs()
+    assert kwargs["min_download"] == 500
+
+
+def test_to_sdk_kwargs_min_upload():
+    """min_upload is passed through to SDK kwargs."""
+    params = PodCreateParams(image_name="test", min_upload=250)
+    kwargs = params.to_sdk_kwargs()
+    assert kwargs["min_upload"] == 250
+
+
 def test_to_sdk_kwargs_no_optional_fields():
     """Optional fields are not included when empty/default."""
     params = PodCreateParams(image_name="test")
@@ -60,6 +95,10 @@ def test_to_sdk_kwargs_no_optional_fields():
     assert "docker_args" not in kwargs
     assert "allowed_cuda_versions" not in kwargs
     assert "support_public_ip" not in kwargs
+    assert "start_ssh" not in kwargs
+    assert "country_code" not in kwargs
+    assert "min_download" not in kwargs
+    assert "min_upload" not in kwargs
 
 
 # --- PodService.wait_until_running() ---
@@ -281,3 +320,87 @@ def test_cli_pod_create_cuda_versions():
         assert result.exit_code == 0
         call_args = mock_svc.create_pod.call_args[0][0]
         assert call_args.allowed_cuda_versions == ["11.8", "12.1"]
+
+
+def test_cli_pod_create_no_ssh():
+    """--no-ssh sets start_ssh=False."""
+    from rpctl.main import app
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+
+    with patch("rpctl.cli.pod._get_pod_service") as mock_svc_fn:
+        mock_svc = MagicMock()
+        mock_svc.create_pod.return_value = _make_pod()
+        mock_svc_fn.return_value = mock_svc
+
+        result = runner.invoke(
+            app,
+            ["pod", "create", "--image", "test", "--no-ssh"],
+        )
+        assert result.exit_code == 0
+        call_args = mock_svc.create_pod.call_args[0][0]
+        assert call_args.start_ssh is False
+
+
+def test_cli_pod_create_country():
+    """--country sets country_code."""
+    from rpctl.main import app
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+
+    with patch("rpctl.cli.pod._get_pod_service") as mock_svc_fn:
+        mock_svc = MagicMock()
+        mock_svc.create_pod.return_value = _make_pod()
+        mock_svc_fn.return_value = mock_svc
+
+        result = runner.invoke(
+            app,
+            ["pod", "create", "--image", "test", "--country", "US"],
+        )
+        assert result.exit_code == 0
+        call_args = mock_svc.create_pod.call_args[0][0]
+        assert call_args.country_code == "US"
+
+
+def test_cli_pod_create_min_download():
+    """--min-download sets min_download."""
+    from rpctl.main import app
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+
+    with patch("rpctl.cli.pod._get_pod_service") as mock_svc_fn:
+        mock_svc = MagicMock()
+        mock_svc.create_pod.return_value = _make_pod()
+        mock_svc_fn.return_value = mock_svc
+
+        result = runner.invoke(
+            app,
+            ["pod", "create", "--image", "test", "--min-download", "500"],
+        )
+        assert result.exit_code == 0
+        call_args = mock_svc.create_pod.call_args[0][0]
+        assert call_args.min_download == 500
+
+
+def test_cli_pod_create_min_upload():
+    """--min-upload sets min_upload."""
+    from rpctl.main import app
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+
+    with patch("rpctl.cli.pod._get_pod_service") as mock_svc_fn:
+        mock_svc = MagicMock()
+        mock_svc.create_pod.return_value = _make_pod()
+        mock_svc_fn.return_value = mock_svc
+
+        result = runner.invoke(
+            app,
+            ["pod", "create", "--image", "test", "--min-upload", "250"],
+        )
+        assert result.exit_code == 0
+        call_args = mock_svc.create_pod.call_args[0][0]
+        assert call_args.min_upload == 250

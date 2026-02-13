@@ -7,9 +7,11 @@ from typing import Any
 from rpctl.output.csv_output import print_csv
 from rpctl.output.json_output import print_json
 from rpctl.output.tables import (
+    print_cpu_list,
     print_dry_run,
     print_endpoint_detail,
     print_endpoint_health,
+    print_endpoint_job_status,
     print_endpoint_list,
     print_endpoint_purge_result,
     print_endpoint_run_result,
@@ -22,6 +24,7 @@ from rpctl.output.tables import (
     print_preset_list,
     print_regions,
     print_registry_detail,
+    print_registry_list,
     print_template_detail,
     print_template_list,
     print_user_info,
@@ -34,6 +37,7 @@ TABLE_RENDERERS = {
     "gpu_list": print_gpu_list,
     "gpu_check": print_gpu_check,
     "gpu_compare": print_gpu_compare,
+    "cpu_list": print_cpu_list,
     "regions": print_regions,
     "pod_list": print_pod_list,
     "pod_detail": print_pod_detail,
@@ -43,6 +47,7 @@ TABLE_RENDERERS = {
     "endpoint_health": print_endpoint_health,
     "endpoint_run_result": print_endpoint_run_result,
     "endpoint_purge_result": print_endpoint_purge_result,
+    "endpoint_job_status": print_endpoint_job_status,
     "endpoint_create_dry_run": print_dry_run,
     "volume_list": print_volume_list,
     "volume_detail": print_volume_detail,
@@ -51,6 +56,7 @@ TABLE_RENDERERS = {
     "preset_list": print_preset_list,
     "preset_detail": print_preset_detail,
     "user_info": print_user_info,
+    "registry_list": print_registry_list,
     "registry_detail": print_registry_detail,
 }
 

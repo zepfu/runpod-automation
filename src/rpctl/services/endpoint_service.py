@@ -56,6 +56,14 @@ class EndpointService:
         """Purge the endpoint's job queue."""
         return self._client.endpoint_purge_queue(endpoint_id)
 
+    def job_status(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
+        """Get the status of a specific job."""
+        return self._client.endpoint_job_status(endpoint_id, job_id)
+
+    def job_cancel(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
+        """Cancel a running or queued job."""
+        return self._client.endpoint_job_cancel(endpoint_id, job_id)
+
     def wait_until_ready(
         self,
         endpoint_id: str,

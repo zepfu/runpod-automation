@@ -13,6 +13,10 @@ class RegistryService:
     def __init__(self, client: RestClient):
         self._client = client
 
+    def list(self) -> list[dict[str, Any]]:
+        """List all container registry auth entries."""
+        return self._client.list_registry_auths()
+
     def create(self, name: str, username: str, password: str) -> dict[str, Any]:
         """Create a new container registry auth."""
         return self._client.create_registry_auth(name, username, password)

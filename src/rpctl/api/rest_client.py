@@ -92,6 +92,28 @@ class RestClient:
         ep = self._runpod.Endpoint(endpoint_id)
         return self._call(ep.purge_queue)  # type: ignore[no-any-return]
 
+    def endpoint_job_status(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
+        import httpx
+
+        url = f"https://api.runpod.ai/v2/{endpoint_id}" f"/status/{job_id}"
+        headers = {
+            "Authorization": f"Bearer {self._runpod.api_key}",
+        }
+        resp = httpx.get(url, headers=headers)
+        resp.raise_for_status()
+        return resp.json()  # type: ignore[no-any-return]
+
+    def endpoint_job_cancel(self, endpoint_id: str, job_id: str) -> dict[str, Any]:
+        import httpx
+
+        url = f"https://api.runpod.ai/v2/{endpoint_id}" f"/cancel/{job_id}"
+        headers = {
+            "Authorization": f"Bearer {self._runpod.api_key}",
+        }
+        resp = httpx.post(url, headers=headers)
+        resp.raise_for_status()
+        return resp.json()  # type: ignore[no-any-return]
+
     # --- Templates ---
 
     def get_templates(self) -> list[dict[str, Any]]:
@@ -149,6 +171,10 @@ class RestClient:
         return self._call(self._runpod.get_gpu, gpu_id)  # type: ignore[no-any-return]
 
     # --- Container Registry Auth ---
+
+    def list_registry_auths(self) -> list[dict[str, Any]]:
+        user_data = self._call(self._runpod.get_user)
+        return user_data.get("containerRegistryAuths") or []
 
     def create_registry_auth(self, name: str, username: str, password: str) -> dict[str, Any]:
         return self._call(  # type: ignore[no-any-return]
