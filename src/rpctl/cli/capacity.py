@@ -38,8 +38,8 @@ def list_gpus(
             available_only=available_only,
             sort_by=sort_by,
         )
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(gpu_types, json_mode=json_mode, table_type="gpu_list")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(gpu_types, output_format=fmt, table_type="gpu_list")
     except RpctlError as e:
         from rich.console import Console
 
@@ -62,8 +62,8 @@ def check(
             gpu_count=gpu_count,
             cloud_type=cloud_type,
         )
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(availability, json_mode=json_mode, table_type="gpu_check")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(availability, output_format=fmt, table_type="gpu_check")
     except RpctlError as e:
         from rich.console import Console
 
@@ -80,8 +80,8 @@ def regions(
     try:
         svc = _get_capacity_service(ctx)
         datacenters = svc.list_regions(gpu_filter=gpu)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(datacenters, json_mode=json_mode, table_type="regions")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(datacenters, output_format=fmt, table_type="regions")
     except RpctlError as e:
         from rich.console import Console
 
@@ -112,8 +112,8 @@ def compare(
             if gt.id.lower() in gpu_lower or gt.display_name.lower() in gpu_lower
         ]
 
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(matched, json_mode=json_mode, table_type="gpu_compare")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(matched, output_format=fmt, table_type="gpu_compare")
     except RpctlError as e:
         from rich.console import Console
 

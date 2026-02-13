@@ -1,9 +1,10 @@
-"""Output routing — table vs JSON based on --json flag."""
+"""Output routing — table, JSON, CSV, or YAML based on --output flag."""
 
 from __future__ import annotations
 
 from typing import Any
 
+from rpctl.output.csv_output import print_csv
 from rpctl.output.json_output import print_json
 from rpctl.output.tables import (
     print_dry_run,
@@ -22,6 +23,7 @@ from rpctl.output.tables import (
     print_volume_detail,
     print_volume_list,
 )
+from rpctl.output.yaml_output import print_yaml
 
 TABLE_RENDERERS = {
     "gpu_list": print_gpu_list,
@@ -43,14 +45,30 @@ TABLE_RENDERERS = {
 }
 
 
-def output(data: Any, *, json_mode: bool = False, table_type: str) -> None:
-    """Route output to JSON or table renderer."""
-    if json_mode:
-        print_json(data)
-        return
+def output(
+    data: Any,
+    *,
+    json_mode: bool = False,
+    output_format: str = "table",
+    table_type: str,
+) -> None:
+    """Route output to the appropriate renderer.
 
-    renderer = TABLE_RENDERERS.get(table_type)
-    if renderer:
-        renderer(data)
-    else:
+    Precedence: explicit output_format > json_mode shorthand > table default.
+    """
+    fmt = output_format
+    if fmt == "table" and json_mode:
+        fmt = "json"
+
+    if fmt == "json":
         print_json(data)
+    elif fmt == "csv":
+        print_csv(data, table_type=table_type)
+    elif fmt == "yaml":
+        print_yaml(data)
+    else:
+        renderer = TABLE_RENDERERS.get(table_type)
+        if renderer:
+            renderer(data)
+        else:
+            print_json(data)

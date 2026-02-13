@@ -160,8 +160,8 @@ def list_presets(ctx: typer.Context) -> None:
     """List all saved presets."""
     svc = _get_preset_service()
     presets = svc.list_presets()
-    json_mode = ctx.obj.get("json", False) if ctx.obj else False
-    output(presets, json_mode=json_mode, table_type="preset_list")
+    fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+    output(presets, output_format=fmt, table_type="preset_list")
 
 
 @app.command()
@@ -173,8 +173,8 @@ def show(
     try:
         svc = _get_preset_service()
         preset = svc.load(name)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(preset, json_mode=json_mode, table_type="preset_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(preset, output_format=fmt, table_type="preset_detail")
     except PresetError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -231,19 +231,19 @@ def apply(
     merged = PresetService.merge_preset_with_overrides(preset.params, cli_overrides)
     rtype = preset.metadata.resource_type
 
-    json_mode = ctx.obj.get("json", False) if ctx.obj else False
+    fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
 
     if rtype == "pod":
         from rpctl.models.pod import PodCreateParams
 
         params = PodCreateParams(**merged)
         if dry_run:
-            output(params, json_mode=json_mode, table_type="pod_create_dry_run")
+            output(params, output_format=fmt, table_type="pod_create_dry_run")
             return
         try:
             pod_svc = _get_pod_service(ctx)
             pod = pod_svc.create_pod(params)
-            output(pod, json_mode=json_mode, table_type="pod_detail")
+            output(pod, output_format=fmt, table_type="pod_detail")
         except RpctlError as e:
             err_console.print(f"[red]Error:[/red] {e}")
             raise typer.Exit(code=e.exit_code) from None
@@ -253,12 +253,12 @@ def apply(
 
         params = EndpointCreateParams(**merged)
         if dry_run:
-            output(params, json_mode=json_mode, table_type="endpoint_create_dry_run")
+            output(params, output_format=fmt, table_type="endpoint_create_dry_run")
             return
         try:
             ep_svc = _get_endpoint_service(ctx)
             endpoint = ep_svc.create_endpoint(params)
-            output(endpoint, json_mode=json_mode, table_type="endpoint_detail")
+            output(endpoint, output_format=fmt, table_type="endpoint_detail")
         except RpctlError as e:
             err_console.print(f"[red]Error:[/red] {e}")
             raise typer.Exit(code=e.exit_code) from None

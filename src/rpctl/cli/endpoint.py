@@ -118,7 +118,7 @@ def create(
             merged[key] = value
 
     params = EndpointCreateParams(**merged)
-    json_mode = ctx.obj.get("json", False) if ctx.obj else False
+    fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
 
     # Step 4: Save preset if requested
     if save_preset:
@@ -138,13 +138,13 @@ def create(
 
     # Step 5: Dry run or create
     if dry_run:
-        output(params, json_mode=json_mode, table_type="endpoint_create_dry_run")
+        output(params, output_format=fmt, table_type="endpoint_create_dry_run")
         return
 
     try:
         svc = _get_endpoint_service(ctx)
         endpoint = svc.create_endpoint(params)
-        output(endpoint, json_mode=json_mode, table_type="endpoint_detail")
+        output(endpoint, output_format=fmt, table_type="endpoint_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -156,8 +156,8 @@ def list_endpoints(ctx: typer.Context) -> None:
     try:
         svc = _get_endpoint_service(ctx)
         endpoints = svc.list_endpoints()
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(endpoints, json_mode=json_mode, table_type="endpoint_list")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(endpoints, output_format=fmt, table_type="endpoint_list")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -172,8 +172,8 @@ def get(
     try:
         svc = _get_endpoint_service(ctx)
         endpoint = svc.get_endpoint(endpoint_id)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(endpoint, json_mode=json_mode, table_type="endpoint_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(endpoint, output_format=fmt, table_type="endpoint_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -209,8 +209,8 @@ def update(
     try:
         svc = _get_endpoint_service(ctx)
         endpoint = svc.update_endpoint(endpoint_id, **kwargs)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(endpoint, json_mode=json_mode, table_type="endpoint_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(endpoint, output_format=fmt, table_type="endpoint_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
