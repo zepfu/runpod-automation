@@ -222,6 +222,45 @@ def update(
 
 
 @app.command()
+def health(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+) -> None:
+    """Check endpoint health (workers, jobs, queue)."""
+    try:
+        svc = _get_endpoint_service(ctx)
+        result = svc.health(endpoint_id)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(result, output_format=fmt, table_type="endpoint_health")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def wait(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    timeout: int = typer.Option(300, help="Max seconds to wait"),
+    interval: int = typer.Option(5, help="Seconds between polls"),
+) -> None:
+    """Wait for endpoint to have ready workers."""
+    from rpctl.services.poll import PollTimeoutError
+
+    try:
+        svc = _get_endpoint_service(ctx)
+        result = svc.wait_until_ready(endpoint_id, timeout=timeout, interval=interval)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(result, output_format=fmt, table_type="endpoint_health")
+    except PollTimeoutError as e:
+        err_console.print(f"[red]Timeout:[/red] {e}")
+        raise typer.Exit(code=2) from None
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
 def delete(
     ctx: typer.Context,
     endpoint_id: str = typer.Argument(help="Endpoint ID"),

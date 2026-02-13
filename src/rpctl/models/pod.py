@@ -111,12 +111,16 @@ class PodCreateParams(BaseModel):
             kwargs["env"] = self.env
         if self.docker_entrypoint:
             kwargs["docker_args"] = self.docker_entrypoint
+        if self.docker_start_cmd:
+            kwargs["docker_start_cmd"] = self.docker_start_cmd
         if self.template_id:
             kwargs["template_id"] = self.template_id
         if self.data_center_ids:
             kwargs["data_center_id"] = self.data_center_ids[0]
         if self.interruptible:
             kwargs["bid_per_gpu"] = 0.0  # Will use market rate
+        if self.allowed_cuda_versions:
+            kwargs["allowed_cuda_versions"] = self.allowed_cuda_versions
         if self.support_public_ip:
             kwargs["support_public_ip"] = True
         return kwargs

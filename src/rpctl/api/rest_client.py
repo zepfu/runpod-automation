@@ -73,6 +73,10 @@ class RestClient:
     def delete_endpoint(self, endpoint_id: str) -> dict[str, Any]:
         return self._call(self._runpod.delete_endpoint, endpoint_id)  # type: ignore[no-any-return]
 
+    def endpoint_health(self, endpoint_id: str) -> dict[str, Any]:
+        ep = self._runpod.Endpoint(endpoint_id)
+        return self._call(ep.health)  # type: ignore[no-any-return]
+
     # --- Templates ---
 
     def get_templates(self) -> list[dict[str, Any]]:

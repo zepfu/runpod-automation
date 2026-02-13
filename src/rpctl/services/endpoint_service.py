@@ -37,3 +37,33 @@ class EndpointService:
     def delete_endpoint(self, endpoint_id: str) -> dict[str, Any]:
         """Delete an endpoint."""
         return self._client.delete_endpoint(endpoint_id)
+
+    def health(self, endpoint_id: str) -> dict[str, Any]:
+        """Get endpoint health status (workers, jobs, queue)."""
+        return self._client.endpoint_health(endpoint_id)
+
+    def wait_until_ready(
+        self,
+        endpoint_id: str,
+        *,
+        timeout: float = 300,
+        interval: float = 5,
+    ) -> dict[str, Any]:
+        """Poll until endpoint has ready workers or timeout."""
+        from rpctl.services.poll import poll_until
+
+        result: dict[str, Any] = {}
+
+        def check() -> tuple[bool, str]:
+            nonlocal result
+            health = self.health(endpoint_id)
+            result = health
+            workers = health.get("workers", {})
+            ready = workers.get("ready", 0) if isinstance(workers, dict) else 0
+            idle = workers.get("idle", 0) if isinstance(workers, dict) else 0
+            total = ready + idle
+            done = total > 0
+            return done, f"workers ready={ready} idle={idle}"
+
+        poll_until(check, timeout=timeout, interval=interval, label=f"endpoint {endpoint_id}")
+        return result
