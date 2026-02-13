@@ -292,66 +292,37 @@ These SDK functions are for building serverless handlers, not for CLI management
 
 ---
 
-## Gap Priority Matrix
+## Gap Priority Matrix — ALL CLOSED
 
-### CRITICAL (blocks agent automation)
+All 18 gaps from the original audit have been implemented with full test coverage.
 
-| # | Gap | CLI Command | Fix Effort |
-|---|-----|-------------|------------|
-| 1 | Pod `docker_start_cmd` not passed to SDK | `rpctl pod create --docker-start-cmd` | Small — add to `to_sdk_kwargs()` |
-| 2 | Pod wait/poll command missing | `rpctl pod wait POD_ID` | Medium — use `poll_until()` |
-| 3 | Endpoint health check missing | `rpctl endpoint health EP_ID` | Small — use `Endpoint.health()` |
-| 4 | Endpoint wait/poll command missing | `rpctl endpoint wait EP_ID` | Medium — poll health |
-
-### HIGH (needed for full workflows)
-
-| # | Gap | CLI Command | Fix Effort |
-|---|-----|-------------|------------|
-| 5 | Pod `--public-ip` flag missing | `rpctl pod create --public-ip` | Tiny |
-| 6 | Pod `--entrypoint` flag missing | `rpctl pod create --entrypoint` | Tiny |
-| 7 | Endpoint run/invoke missing | `rpctl endpoint run EP_ID` | Medium |
-| 8 | User info missing | `rpctl user info` | Small |
-| 9 | Container registry CRUD | `rpctl registry create/update/delete` | Medium |
-
-### MEDIUM (nice to have)
-
-| # | Gap | CLI Command | Fix Effort |
-|---|-----|-------------|------------|
-| 10 | Pod `--cuda-versions` flag missing | `rpctl pod create --cuda-versions` | Tiny |
-| 11 | Endpoint purge-queue | `rpctl endpoint purge-queue EP_ID` | Small |
-| 12 | Endpoint job status/cancel | `rpctl endpoint job-status` | Medium |
-| 13 | User SSH key upload | `rpctl user set-ssh-key` | Small |
-| 14 | CPU capacity in list | `rpctl capacity list --cpu` | Small |
-
-### LOW (edge cases)
-
-| # | Gap | CLI Command | Fix Effort |
-|---|-----|-------------|------------|
-| 15 | `start_ssh` on pod create | `rpctl pod create --no-ssh` | Tiny |
-| 16 | `country_code` on pod create | `rpctl pod create --country` | Tiny |
-| 17 | `min_download`/`min_upload` on pod create | `rpctl pod create --min-download` | Tiny |
-| 18 | Endpoint `--cuda-versions` on create | `rpctl endpoint create --cuda-versions` | Tiny |
+| # | Gap | CLI Command | Status |
+|---|-----|-------------|--------|
+| 1 | Pod `docker_start_cmd` not passed to SDK | `rpctl pod create --docker-start-cmd` | **DONE** |
+| 2 | Pod wait/poll command | `rpctl pod wait POD_ID` | **DONE** |
+| 3 | Endpoint health check | `rpctl endpoint health EP_ID` | **DONE** |
+| 4 | Endpoint wait/poll | `rpctl endpoint wait EP_ID` | **DONE** |
+| 5 | Pod `--public-ip` flag | `rpctl pod create --public-ip` | **DONE** |
+| 6 | Pod `--entrypoint` flag | `rpctl pod create --entrypoint` | **DONE** |
+| 7 | Endpoint run/invoke | `rpctl endpoint run EP_ID` | **DONE** |
+| 8 | User info | `rpctl user info` | **DONE** |
+| 9 | Container registry CRUD | `rpctl registry create/update/delete/list` | **DONE** |
+| 10 | Pod `--cuda-version` flag | `rpctl pod create --cuda-version` | **DONE** |
+| 11 | Endpoint purge-queue | `rpctl endpoint purge-queue EP_ID` | **DONE** |
+| 12 | Endpoint job status/cancel | `rpctl endpoint job-status/job-cancel` | **DONE** |
+| 13 | User SSH key upload | `rpctl user set-ssh-key` | **DONE** |
+| 14 | CPU capacity listing | `rpctl capacity cpus` | **DONE** |
+| 15 | `start_ssh` on pod create | `rpctl pod create --no-ssh` | **DONE** |
+| 16 | `country_code` on pod create | `rpctl pod create --country` | **DONE** |
+| 17 | `min_download`/`min_upload` on pod create | `rpctl pod create --min-download/--min-upload` | **DONE** |
+| 18 | Endpoint `--cuda-versions` on create | `rpctl endpoint create --cuda-version` | **DONE** |
 
 ---
 
-## Currently In Progress
+## Remaining Stretch Goals (not in SDK)
 
-Tasks being implemented now (from approved plan):
+These items require features not exposed by the RunPod SDK (v1.8.1):
 
-- [x] Template create — `--docker-start-cmd`, `--volume-mount-path`, `--registry-auth` (done)
-- [ ] Pod create — `--docker-start-cmd` SDK mapping, `--entrypoint`, `--public-ip`, `--cuda-versions`
-- [ ] `rpctl endpoint health EP_ID`
-- [ ] `rpctl endpoint wait EP_ID`
-- [ ] `rpctl pod wait POD_ID`
-- [ ] Shared polling utility (`poll.py` created, needs tests)
-
-## Future Backlog (from initial suggestions)
-
-- `rpctl endpoint run EP_ID --input '{}' [--sync|--async]`
-- `rpctl endpoint purge-queue EP_ID`
-- `rpctl endpoint job-status EP_ID JOB_ID`
-- `rpctl user info`
-- `rpctl user set-ssh-key`
-- `rpctl registry create/update/delete`
-- CPU capacity display
-- `--country`, `--min-download`, `--min-upload` on pod create
+- `Job.stream()` — live streaming output from serverless jobs
+- Template list/get/update/delete — already implemented via custom GQL
+- Volume CRUD — already implemented via custom GQL
