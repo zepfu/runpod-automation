@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+from typing import Any
 
 import httpx
 
@@ -31,15 +32,15 @@ class GraphQLClient:
             timeout=timeout,
         )
 
-    def execute(self, query: str, variables: dict | None = None) -> dict:
+    def execute(self, query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute a GraphQL query with automatic retry on transient errors."""
         from rpctl.api.retry import retry_on_transient
 
-        return retry_on_transient(self._execute_once, query, variables)
+        return retry_on_transient(self._execute_once, query, variables)  # type: ignore[no-any-return]
 
-    def _execute_once(self, query: str, variables: dict | None = None) -> dict:
+    def _execute_once(self, query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute a single GraphQL request (no retry)."""
-        payload: dict = {"query": query}
+        payload: dict[str, Any] = {"query": query}
         if variables:
             payload["variables"] = variables
 
@@ -74,7 +75,8 @@ class GraphQLClient:
             messages = "; ".join(e.get("message", str(e)) for e in body["errors"])
             raise ApiError(f"GraphQL error: {messages}")
 
-        return body.get("data", {})
+        data: dict[str, Any] = body.get("data", {})
+        return data
 
     def close(self) -> None:
         self._client.close()

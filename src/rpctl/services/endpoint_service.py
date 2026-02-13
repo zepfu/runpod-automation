@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from rpctl.api.rest_client import RestClient
 from rpctl.models.endpoint import Endpoint, EndpointCreateParams
 
@@ -27,11 +29,11 @@ class EndpointService:
         raw = self._client.create_endpoint(**params.to_sdk_kwargs())
         return Endpoint.from_api(raw)
 
-    def update_endpoint(self, endpoint_id: str, **kwargs) -> Endpoint:
+    def update_endpoint(self, endpoint_id: str, **kwargs: Any) -> Endpoint:
         """Update an existing endpoint."""
         raw = self._client.update_endpoint(endpoint_id, **kwargs)
         return Endpoint.from_api(raw)
 
-    def delete_endpoint(self, endpoint_id: str) -> dict:
+    def delete_endpoint(self, endpoint_id: str) -> dict[str, Any]:
         """Delete an endpoint."""
         return self._client.delete_endpoint(endpoint_id)

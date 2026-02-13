@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 import typer
 from rich.console import Console
 
 from rpctl.errors import RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from rpctl.services.endpoint_service import EndpointService
+
 app = typer.Typer(no_args_is_help=True)
 err_console = Console(stderr=True)
 
 
-def _get_endpoint_service(ctx: typer.Context):
+def _get_endpoint_service(ctx: typer.Context) -> EndpointService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.endpoint_service import EndpointService
@@ -50,7 +55,7 @@ def create(
     from rpctl.models.endpoint import EndpointCreateParams
 
     # Step 1: Load preset base values if provided
-    base_params: dict = {}
+    base_params: dict[str, Any] = {}
     if preset:
         from rpctl.services.preset_service import PresetService
 
@@ -65,7 +70,7 @@ def create(
         base_params = dict(loaded.params)
 
     # Step 2: Build CLI overrides
-    cli_overrides: dict = {}
+    cli_overrides: dict[str, Any] = {}
     if name is not None:
         cli_overrides["name"] = name
     if template is not None:
@@ -190,7 +195,7 @@ def update(
     scaler_value: int | None = typer.Option(None, help="Scaler parameter"),
 ) -> None:
     """Update an existing endpoint."""
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if workers_min is not None:
         kwargs["workers_min"] = workers_min
     if workers_max is not None:

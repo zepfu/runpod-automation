@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 import typer
 from rich.console import Console
 
 from rpctl.errors import RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from rpctl.services.pod_service import PodService
+
 app = typer.Typer(no_args_is_help=True)
 err_console = Console(stderr=True)
 
 
-def _get_pod_service(ctx: typer.Context):
+def _get_pod_service(ctx: typer.Context) -> PodService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.pod_service import PodService
@@ -75,7 +80,7 @@ def create(
     from rpctl.models.pod import PodCreateParams
 
     # Step 1: Load preset base values if provided
-    base_params: dict = {}
+    base_params: dict[str, Any] = {}
     if preset:
         from rpctl.services.preset_service import PresetService
 
@@ -90,7 +95,7 @@ def create(
         base_params = dict(loaded.params)
 
     # Step 2: Build CLI overrides (only non-None / non-empty values)
-    cli_overrides: dict = {}
+    cli_overrides: dict[str, Any] = {}
     if name is not None:
         cli_overrides["name"] = name
     if image is not None:
@@ -273,3 +278,86 @@ def delete(
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command("stop-all")
+def stop_all(
+    ctx: typer.Context,
+    confirm: bool = typer.Option(False, "--confirm", help="Skip confirmation prompt"),
+    parallel: bool = typer.Option(False, "--parallel", help="Stop pods in parallel"),
+    max_workers: int = typer.Option(5, "--workers", help="Max parallel workers"),
+) -> None:
+    """Stop all running pods."""
+    try:
+        svc = _get_pod_service(ctx)
+        pods = svc.list_pods(status_filter="running")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+    if not pods:
+        Console().print("[yellow]No running pods to stop.[/yellow]")
+        return
+
+    if not confirm:
+        typer.confirm(f"Stop {len(pods)} running pod(s)?", abort=True)
+
+    if parallel:
+        from rpctl.services.parallel import parallel_map
+
+        result = parallel_map(lambda p: svc.stop_pod(p.id), pods, max_workers=max_workers)
+        Console().print(f"[green]Stopped {len(result.succeeded)} pod(s).[/green]")
+        for _item, exc in result.failed:
+            err_console.print(f"[red]Failed to stop pod: {exc}[/red]")
+        if result.failed:
+            raise typer.Exit(code=1)
+    else:
+        for pod in pods:
+            try:
+                svc.stop_pod(pod.id)
+                Console().print(f"[green]Stopped {pod.id} ({pod.name})[/green]")
+            except RpctlError as e:
+                err_console.print(f"[red]Failed to stop {pod.id}: {e}[/red]")
+
+
+@app.command("delete-all")
+def delete_all(
+    ctx: typer.Context,
+    confirm: bool = typer.Option(False, "--confirm", help="Skip confirmation prompt"),
+    parallel: bool = typer.Option(False, "--parallel", help="Delete pods in parallel"),
+    max_workers: int = typer.Option(5, "--workers", help="Max parallel workers"),
+) -> None:
+    """Delete all pods. This cannot be undone."""
+    try:
+        svc = _get_pod_service(ctx)
+        pods = svc.list_pods()
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+    if not pods:
+        Console().print("[yellow]No pods to delete.[/yellow]")
+        return
+
+    if not confirm:
+        typer.confirm(
+            f"Delete ALL {len(pods)} pod(s)? This cannot be undone",
+            abort=True,
+        )
+
+    if parallel:
+        from rpctl.services.parallel import parallel_map
+
+        result = parallel_map(lambda p: svc.delete_pod(p.id), pods, max_workers=max_workers)
+        Console().print(f"[green]Deleted {len(result.succeeded)} pod(s).[/green]")
+        for _item, exc in result.failed:
+            err_console.print(f"[red]Failed to delete pod: {exc}[/red]")
+        if result.failed:
+            raise typer.Exit(code=1)
+    else:
+        for pod in pods:
+            try:
+                svc.delete_pod(pod.id)
+                Console().print(f"[green]Deleted {pod.id} ({pod.name})[/green]")
+            except RpctlError as e:
+                err_console.print(f"[red]Failed to delete {pod.id}: {e}[/red]")

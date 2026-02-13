@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
 import typer
 from rich.console import Console
 
 from rpctl.errors import RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from rpctl.services.template_service import TemplateService
+
 app = typer.Typer(no_args_is_help=True)
 err_console = Console(stderr=True)
 
 
-def _get_template_service(ctx: typer.Context):
+def _get_template_service(ctx: typer.Context) -> TemplateService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.template_service import TemplateService
@@ -44,7 +49,7 @@ def create(
         key, _, value = item.partition("=")
         env_dict[key] = value
 
-    kwargs: dict = {
+    kwargs: dict[str, Any] = {
         "name": name,
         "image_name": image,
         "is_serverless": serverless,
@@ -105,7 +110,7 @@ def update(
     image: str | None = typer.Option(None, help="New container image"),
 ) -> None:
     """Update a template."""
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if name is not None:
         kwargs["name"] = name
     if image is not None:

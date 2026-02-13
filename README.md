@@ -25,6 +25,9 @@ rpctl pod create --image runpod/pytorch:2.1 --gpu "NVIDIA RTX A6000"
 
 # List your pods
 rpctl pod list
+
+# SSH into a running pod
+rpctl ssh connect POD_ID
 ```
 
 ## Commands
@@ -37,26 +40,59 @@ rpctl pod list
 | `rpctl pod create --image IMG` | Create a new pod |
 | `rpctl pod get POD_ID` | Show pod details |
 | `rpctl pod stop POD_ID` | Stop a running pod |
-| `rpctl pod resume POD_ID` | Resume a stopped pod |
-| `rpctl pod terminate POD_ID` | Permanently delete a pod |
+| `rpctl pod start POD_ID` | Resume a stopped pod |
+| `rpctl pod delete POD_ID` | Permanently delete a pod |
+| `rpctl pod stop-all --confirm` | Stop all running pods |
+| `rpctl pod delete-all --confirm` | Delete all pods |
 | `rpctl endpoint list` | List serverless endpoints |
 | `rpctl endpoint create --name N --template T` | Create an endpoint |
 | `rpctl endpoint get EP_ID` | Show endpoint details |
 | `rpctl endpoint update EP_ID` | Update endpoint settings |
 | `rpctl endpoint delete EP_ID` | Delete an endpoint |
 | `rpctl volume list` | List network volumes |
-| `rpctl volume create --name N --size S --datacenter DC` | Create a volume |
+| `rpctl volume create --name N --size S --region DC` | Create a volume |
 | `rpctl template list` | List templates |
 | `rpctl template create --name N --image IMG` | Create a template |
+
+### SSH
+
+Connect to a running pod via SSH:
+
+```bash
+# SSH into a pod (auto-detects host/port from runtime)
+rpctl ssh connect POD_ID
+
+# Custom user and key
+rpctl ssh connect POD_ID --user ubuntu --key ~/.ssh/id_rsa
+
+# Run a remote command
+rpctl ssh connect POD_ID --command "nvidia-smi"
+
+# Preview the SSH command without connecting
+rpctl ssh connect POD_ID --dry-run
+```
+
+### Batch Operations
+
+Stop or delete multiple pods at once:
+
+```bash
+# Stop all running pods
+rpctl pod stop-all --confirm
+
+# Delete all pods (parallel execution)
+rpctl pod delete-all --confirm --parallel --workers 10
+```
 
 ### Capacity & Pricing
 
 | Command | Description |
 |---------|-------------|
 | `rpctl capacity list` | List GPU types with pricing and availability |
-| `rpctl capacity list --gpu "A100"` | Filter by GPU type |
-| `rpctl capacity list --datacenter US-TX-3` | Filter by datacenter |
 | `rpctl capacity list --available` | Show only available GPUs |
+| `rpctl capacity check --gpu "A100"` | Check specific GPU availability |
+| `rpctl capacity regions` | List all datacenters |
+| `rpctl capacity compare "A100" "H100"` | Compare GPUs side-by-side |
 
 ### Presets
 
@@ -91,14 +127,38 @@ rpctl config add-profile NAME  # Add a new profile
 rpctl config use-profile NAME  # Switch active profile
 ```
 
+## Output Formats
+
+All commands support multiple output formats via the `--output` / `-o` flag:
+
+```bash
+rpctl pod list --output table   # Default: rich table
+rpctl pod list --output json    # JSON (same as --json)
+rpctl pod list --output csv     # CSV
+rpctl pod list --output yaml    # YAML
+```
+
 ## Global Flags
 
 | Flag | Description |
 |------|-------------|
-| `--json` | Output as JSON (useful for scripting) |
+| `--output` / `-o` | Output format: table, json, csv, yaml |
+| `--json` | Shorthand for `--output json` |
 | `--verbose` / `-v` | Enable debug logging to stderr |
 | `--profile NAME` | Use a specific config profile |
 | `--version` | Show version and exit |
+
+## Shell Completions
+
+Typer supports auto-completion for bash, zsh, fish, and PowerShell:
+
+```bash
+# Install completions for your shell
+rpctl --install-completion
+
+# Show completion script without installing
+rpctl --show-completion
+```
 
 ## Configuration
 
@@ -128,12 +188,24 @@ pip install -e ".[dev]"
 # Run tests
 pytest
 
-# Lint
+# Lint and format
 ruff check src/ tests/
-
-# Format
 ruff format src/ tests/
+
+# Type check
+mypy src/rpctl/
 ```
+
+## Release
+
+Releases are published to PyPI automatically when a version tag is pushed:
+
+```bash
+git tag v0.1.0
+git push --tags
+```
+
+The GitHub Actions release workflow builds the wheel/sdist and publishes via trusted publishing.
 
 ## License
 

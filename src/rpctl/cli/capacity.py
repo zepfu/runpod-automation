@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import typer
 
 from rpctl.config.settings import Settings
 from rpctl.errors import RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from rpctl.services.capacity_service import CapacityService
+
 app = typer.Typer(no_args_is_help=True)
 
 
-def _get_capacity_service(ctx: typer.Context):
+def _get_capacity_service(ctx: typer.Context) -> CapacityService:
     from rpctl.api.graphql_client import GraphQLClient
     from rpctl.services.capacity_service import CapacityService
 

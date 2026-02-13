@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 def print_yaml(data: Any) -> None:
     """Print data as YAML to stdout."""
+    serialized: Any
     if isinstance(data, list):
         serialized = [
             item.model_dump(exclude_none=True) if isinstance(item, BaseModel) else item

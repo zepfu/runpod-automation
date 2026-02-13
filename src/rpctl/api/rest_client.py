@@ -22,102 +22,112 @@ def _extract_status_code(msg: str) -> int | None:
 class RestClient:
     """Wraps the runpod SDK to isolate its global state and provide consistent error handling."""
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         import runpod
 
         runpod.api_key = api_key
-        self._runpod = runpod
+        self._runpod: Any = runpod
 
     # --- Pods ---
 
     def get_pods(self) -> list[dict[str, Any]]:
-        return self._call(self._runpod.get_pods)
+        return self._call(self._runpod.get_pods)  # type: ignore[no-any-return]
 
     def get_pod(self, pod_id: str) -> dict[str, Any]:
-        result = self._call(self._runpod.get_pod, pod_id)
+        result: Any = self._call(self._runpod.get_pod, pod_id)
         if not result:
             raise ResourceNotFoundError(f"Pod '{pod_id}' not found.")
-        return result
+        return result  # type: ignore[no-any-return]
 
     def create_pod(self, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.create_pod, **kwargs)
+        return self._call(self._runpod.create_pod, **kwargs)  # type: ignore[no-any-return]
 
     def stop_pod(self, pod_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.stop_pod, pod_id)
+        return self._call(self._runpod.stop_pod, pod_id)  # type: ignore[no-any-return]
 
     def resume_pod(self, pod_id: str, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.resume_pod, pod_id, **kwargs)
+        return self._call(self._runpod.resume_pod, pod_id, **kwargs)  # type: ignore[no-any-return]
 
     def terminate_pod(self, pod_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.terminate_pod, pod_id)
+        return self._call(self._runpod.terminate_pod, pod_id)  # type: ignore[no-any-return]
 
     # --- Endpoints ---
 
     def get_endpoints(self) -> list[dict[str, Any]]:
-        return self._call(self._runpod.get_endpoints)
+        return self._call(self._runpod.get_endpoints)  # type: ignore[no-any-return]
 
     def get_endpoint(self, endpoint_id: str) -> dict[str, Any]:
-        result = self._call(self._runpod.get_endpoint, endpoint_id)
+        result: Any = self._call(self._runpod.get_endpoint, endpoint_id)
         if not result:
             raise ResourceNotFoundError(f"Endpoint '{endpoint_id}' not found.")
-        return result
+        return result  # type: ignore[no-any-return]
 
     def create_endpoint(self, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.create_endpoint, **kwargs)
+        return self._call(self._runpod.create_endpoint, **kwargs)  # type: ignore[no-any-return]
 
     def update_endpoint(self, endpoint_id: str, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.update_endpoint_template, endpoint_id, **kwargs)
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.update_endpoint_template, endpoint_id, **kwargs
+        )
 
     def delete_endpoint(self, endpoint_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.delete_endpoint, endpoint_id)
+        return self._call(self._runpod.delete_endpoint, endpoint_id)  # type: ignore[no-any-return]
 
     # --- Templates ---
 
     def get_templates(self) -> list[dict[str, Any]]:
-        return self._call(self._runpod.get_templates)
+        return self._call(self._runpod.get_templates)  # type: ignore[no-any-return]
 
     def get_template(self, template_id: str) -> dict[str, Any]:
-        result = self._call(self._runpod.get_template, template_id)
+        result: Any = self._call(self._runpod.get_template, template_id)
         if not result:
             raise ResourceNotFoundError(f"Template '{template_id}' not found.")
-        return result
+        return result  # type: ignore[no-any-return]
 
     def create_template(self, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.create_template, **kwargs)
+        return self._call(self._runpod.create_template, **kwargs)  # type: ignore[no-any-return]
 
     def update_template(self, template_id: str, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.update_template, template_id, **kwargs)
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.update_template, template_id, **kwargs
+        )
 
     def delete_template(self, template_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.delete_template, template_id)
+        return self._call(self._runpod.delete_template, template_id)  # type: ignore[no-any-return]
 
     # --- Network Volumes ---
 
     def get_volumes(self) -> list[dict[str, Any]]:
-        return self._call(self._runpod.get_network_volumes)
+        return self._call(self._runpod.get_network_volumes)  # type: ignore[no-any-return]
 
     def get_volume(self, volume_id: str) -> dict[str, Any]:
-        result = self._call(self._runpod.get_network_volume, volume_id)
+        result: Any = self._call(self._runpod.get_network_volume, volume_id)
         if not result:
             raise ResourceNotFoundError(f"Volume '{volume_id}' not found.")
-        return result
+        return result  # type: ignore[no-any-return]
 
     def create_volume(self, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.create_network_volume, **kwargs)
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.create_network_volume, **kwargs
+        )
 
     def update_volume(self, volume_id: str, **kwargs: Any) -> dict[str, Any]:
-        return self._call(self._runpod.update_network_volume, volume_id, **kwargs)
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.update_network_volume, volume_id, **kwargs
+        )
 
     def delete_volume(self, volume_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.delete_network_volume, volume_id)
+        return self._call(  # type: ignore[no-any-return]
+            self._runpod.delete_network_volume, volume_id
+        )
 
     # --- GPU info ---
 
     def get_gpus(self) -> list[dict[str, Any]]:
-        return self._call(self._runpod.get_gpus)
+        return self._call(self._runpod.get_gpus)  # type: ignore[no-any-return]
 
     def get_gpu(self, gpu_id: str) -> dict[str, Any]:
-        return self._call(self._runpod.get_gpu, gpu_id)
+        return self._call(self._runpod.get_gpu, gpu_id)  # type: ignore[no-any-return]
 
     def _call(self, func: Any, *args: Any, **kwargs: Any) -> Any:
         """Call a runpod SDK function with retry on transient errors."""

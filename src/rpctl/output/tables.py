@@ -41,7 +41,7 @@ def _status_style(status: str) -> str:
     return status
 
 
-def _detail_table(title: str, data: BaseModel | dict) -> None:
+def _detail_table(title: str, data: BaseModel | dict[str, Any]) -> None:
     """Render any model/dict as a key-value detail table."""
     table = Table(title=title, show_header=False)
     table.add_column("Field", style="cyan")
@@ -72,7 +72,7 @@ def _detail_table(title: str, data: BaseModel | dict) -> None:
 # --- GPU/Capacity tables ---
 
 
-def print_gpu_list(gpu_types: list) -> None:
+def print_gpu_list(gpu_types: list[Any]) -> None:
     """Render GPU types as a table."""
     if not gpu_types:
         console.print("[dim]No GPU types found matching filters.[/dim]")
@@ -133,7 +133,7 @@ def print_gpu_check(detail: Any) -> None:
     console.print(table)
 
 
-def print_gpu_compare(gpu_types: list) -> None:
+def print_gpu_compare(gpu_types: list[Any]) -> None:
     """Render side-by-side GPU comparison."""
     if not gpu_types:
         console.print("[dim]No GPUs to compare.[/dim]")
@@ -162,7 +162,7 @@ def print_gpu_compare(gpu_types: list) -> None:
     console.print(table)
 
 
-def print_regions(datacenters: list) -> None:
+def print_regions(datacenters: list[Any]) -> None:
     """Render datacenter availability as a table."""
     if not datacenters:
         console.print("[dim]No datacenters found matching filters.[/dim]")
@@ -197,7 +197,7 @@ def print_regions(datacenters: list) -> None:
 # --- Pod tables ---
 
 
-def print_pod_list(pods: list) -> None:
+def print_pod_list(pods: list[Any]) -> None:
     """Render pods as a table."""
     if not pods:
         console.print("[dim]No pods found.[/dim]")
@@ -233,7 +233,7 @@ def print_pod_detail(pod: Any) -> None:
 # --- Endpoint tables ---
 
 
-def print_endpoint_list(endpoints: list) -> None:
+def print_endpoint_list(endpoints: list[Any]) -> None:
     """Render endpoints as a table."""
     if not endpoints:
         console.print("[dim]No endpoints found.[/dim]")
@@ -270,7 +270,7 @@ def print_endpoint_detail(endpoint: Any) -> None:
 # --- Volume tables ---
 
 
-def print_volume_list(volumes: list) -> None:
+def print_volume_list(volumes: list[Any]) -> None:
     """Render volumes as a table."""
     if not volumes:
         console.print("[dim]No network volumes found.[/dim]")
@@ -305,7 +305,7 @@ def print_volume_detail(volume: Any) -> None:
 # --- Template tables ---
 
 
-def print_template_list(templates: list) -> None:
+def print_template_list(templates: list[Any]) -> None:
     """Render templates as a table."""
     if not templates:
         console.print("[dim]No templates found.[/dim]")
@@ -338,7 +338,7 @@ def print_template_detail(template: Any) -> None:
 # --- Preset tables ---
 
 
-def print_preset_list(presets: list) -> None:
+def print_preset_list(presets: list[Any]) -> None:
     """Render presets as a table."""
     if not presets:
         console.print("[dim]No presets found.[/dim]")

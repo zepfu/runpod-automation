@@ -2,23 +2,32 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, cast
+
 import typer
 from rich.console import Console
 
 from rpctl.errors import PresetError, RpctlError
 from rpctl.output.formatter import output
 
+if TYPE_CHECKING:
+    from typing import Literal
+
+    from rpctl.services.endpoint_service import EndpointService
+    from rpctl.services.pod_service import PodService
+    from rpctl.services.preset_service import PresetService
+
 app = typer.Typer(no_args_is_help=True)
 err_console = Console(stderr=True)
 
 
-def _get_preset_service(presets_dir=None):
+def _get_preset_service(presets_dir: Any = None) -> PresetService:
     from rpctl.services.preset_service import PresetService
 
     return PresetService(presets_dir=presets_dir)
 
 
-def _get_pod_service(ctx: typer.Context):
+def _get_pod_service(ctx: typer.Context) -> PodService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.pod_service import PodService
@@ -29,7 +38,7 @@ def _get_pod_service(ctx: typer.Context):
     return PodService(client)
 
 
-def _get_endpoint_service(ctx: typer.Context):
+def _get_endpoint_service(ctx: typer.Context) -> EndpointService:
     from rpctl.api.rest_client import RestClient
     from rpctl.config.settings import Settings
     from rpctl.services.endpoint_service import EndpointService
@@ -80,7 +89,7 @@ def save(
         raise typer.Exit(code=1)
 
     svc = _get_preset_service()
-    params: dict = {}
+    params: dict[str, Any] = {}
     source = "cli"
 
     if from_pod:
@@ -106,7 +115,7 @@ def save(
             raise typer.Exit(code=e.exit_code) from None
 
     # Apply CLI overrides on top of extracted params
-    cli_overrides: dict = {}
+    cli_overrides: dict[str, Any] = {}
     if image is not None:
         cli_overrides["image_name"] = image
     if gpu:
@@ -140,7 +149,7 @@ def save(
     preset = Preset(
         metadata=PresetMetadata(
             name=name,
-            resource_type=resource_type,
+            resource_type=cast("Literal['pod', 'endpoint']", resource_type),
             description=description,
             source=source,
         ),
@@ -220,7 +229,7 @@ def apply(
     # Build overrides
     from rpctl.services.preset_service import PresetService
 
-    cli_overrides: dict = {}
+    cli_overrides: dict[str, Any] = {}
     if pod_name is not None:
         cli_overrides["name"] = pod_name
     if gpu_count is not None:
@@ -236,13 +245,13 @@ def apply(
     if rtype == "pod":
         from rpctl.models.pod import PodCreateParams
 
-        params = PodCreateParams(**merged)
+        pod_params = PodCreateParams(**merged)
         if dry_run:
-            output(params, output_format=fmt, table_type="pod_create_dry_run")
+            output(pod_params, output_format=fmt, table_type="pod_create_dry_run")
             return
         try:
             pod_svc = _get_pod_service(ctx)
-            pod = pod_svc.create_pod(params)
+            pod = pod_svc.create_pod(pod_params)
             output(pod, output_format=fmt, table_type="pod_detail")
         except RpctlError as e:
             err_console.print(f"[red]Error:[/red] {e}")
@@ -251,13 +260,13 @@ def apply(
     elif rtype == "endpoint":
         from rpctl.models.endpoint import EndpointCreateParams
 
-        params = EndpointCreateParams(**merged)
+        ep_params = EndpointCreateParams(**merged)
         if dry_run:
-            output(params, output_format=fmt, table_type="endpoint_create_dry_run")
+            output(ep_params, output_format=fmt, table_type="endpoint_create_dry_run")
             return
         try:
             ep_svc = _get_endpoint_service(ctx)
-            endpoint = ep_svc.create_endpoint(params)
+            endpoint = ep_svc.create_endpoint(ep_params)
             output(endpoint, output_format=fmt, table_type="endpoint_detail")
         except RpctlError as e:
             err_console.print(f"[red]Error:[/red] {e}")
