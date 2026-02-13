@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+.env
+*.log
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.Zone.Identifier
+
+# Orchestrator framework files
+CLAUDE.md
+CLAUDE_SUGGESTIONS.md
+PROJECT_LOG.md
+TASKS.md
+agent-logs/
+logs/
+.claude/

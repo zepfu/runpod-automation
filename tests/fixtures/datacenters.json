@@ -1,0 +1,60 @@
+{
+  "myself": {
+    "datacenters": [
+      {
+        "id": "US-TX-3",
+        "name": "US Texas 3",
+        "location": "Dallas, TX",
+        "region": "NORTH_AMERICA",
+        "listed": true,
+        "storageSupport": true,
+        "gpuAvailability": [
+          {
+            "gpuTypeId": "NVIDIA GeForce RTX 4090",
+            "gpuTypeDisplayName": "NVIDIA GeForce RTX 4090",
+            "available": true,
+            "stockStatus": "High"
+          },
+          {
+            "gpuTypeId": "NVIDIA A100 80GB PCIe",
+            "gpuTypeDisplayName": "NVIDIA A100 80GB PCIe",
+            "available": true,
+            "stockStatus": "Low"
+          }
+        ]
+      },
+      {
+        "id": "EU-RO-1",
+        "name": "EU Romania 1",
+        "location": "Bucharest, RO",
+        "region": "EUROPE",
+        "listed": true,
+        "storageSupport": true,
+        "gpuAvailability": [
+          {
+            "gpuTypeId": "NVIDIA GeForce RTX 4090",
+            "gpuTypeDisplayName": "NVIDIA GeForce RTX 4090",
+            "available": false,
+            "stockStatus": "Low"
+          }
+        ]
+      },
+      {
+        "id": "CA-MTL-1",
+        "name": "CA Montreal 1",
+        "location": "Montreal, QC",
+        "region": "NORTH_AMERICA",
+        "listed": true,
+        "storageSupport": false,
+        "gpuAvailability": [
+          {
+            "gpuTypeId": "NVIDIA H100 80GB HBM3",
+            "gpuTypeDisplayName": "NVIDIA H100 80GB HBM3",
+            "available": true,
+            "stockStatus": "High"
+          }
+        ]
+      }
+    ]
+  }
+}

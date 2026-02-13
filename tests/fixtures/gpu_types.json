@@ -1,0 +1,108 @@
+{
+  "gpuTypes": [
+    {
+      "id": "NVIDIA GeForce RTX 4090",
+      "displayName": "NVIDIA GeForce RTX 4090",
+      "manufacturer": "NVIDIA",
+      "memoryInGb": 24,
+      "cudaCores": 16384,
+      "secureCloud": true,
+      "communityCloud": true,
+      "securePrice": 0.44,
+      "communityPrice": 0.34,
+      "secureSpotPrice": null,
+      "communitySpotPrice": 0.29,
+      "maxGpuCount": 1,
+      "maxGpuCountSecureCloud": 1,
+      "maxGpuCountCommunityCloud": 1,
+      "lowestPrice": {
+        "minimumBidPrice": 0.29,
+        "uninterruptablePrice": 0.34,
+        "stockStatus": "High",
+        "rentedCount": 150,
+        "totalCount": 200,
+        "rentalPercentage": 75.0,
+        "maxUnreservedGpuCount": 50,
+        "availableGpuCounts": [1]
+      }
+    },
+    {
+      "id": "NVIDIA A100 80GB PCIe",
+      "displayName": "NVIDIA A100 80GB PCIe",
+      "manufacturer": "NVIDIA",
+      "memoryInGb": 80,
+      "cudaCores": 6912,
+      "secureCloud": true,
+      "communityCloud": true,
+      "securePrice": 1.64,
+      "communityPrice": 1.24,
+      "secureSpotPrice": null,
+      "communitySpotPrice": 0.89,
+      "maxGpuCount": 8,
+      "maxGpuCountSecureCloud": 8,
+      "maxGpuCountCommunityCloud": 4,
+      "lowestPrice": {
+        "minimumBidPrice": 0.89,
+        "uninterruptablePrice": 1.24,
+        "stockStatus": "Low",
+        "rentedCount": 95,
+        "totalCount": 100,
+        "rentalPercentage": 95.0,
+        "maxUnreservedGpuCount": 5,
+        "availableGpuCounts": [1, 2, 4]
+      }
+    },
+    {
+      "id": "NVIDIA H100 80GB HBM3",
+      "displayName": "NVIDIA H100 80GB HBM3",
+      "manufacturer": "NVIDIA",
+      "memoryInGb": 80,
+      "cudaCores": 14592,
+      "secureCloud": true,
+      "communityCloud": false,
+      "securePrice": 3.89,
+      "communityPrice": null,
+      "secureSpotPrice": null,
+      "communitySpotPrice": null,
+      "maxGpuCount": 8,
+      "maxGpuCountSecureCloud": 8,
+      "maxGpuCountCommunityCloud": 0,
+      "lowestPrice": {
+        "minimumBidPrice": null,
+        "uninterruptablePrice": 3.89,
+        "stockStatus": "High",
+        "rentedCount": 40,
+        "totalCount": 80,
+        "rentalPercentage": 50.0,
+        "maxUnreservedGpuCount": 40,
+        "availableGpuCounts": [1, 2, 4, 8]
+      }
+    },
+    {
+      "id": "Tesla T4",
+      "displayName": "Tesla T4",
+      "manufacturer": "NVIDIA",
+      "memoryInGb": 16,
+      "cudaCores": 2560,
+      "secureCloud": false,
+      "communityCloud": true,
+      "securePrice": null,
+      "communityPrice": 0.15,
+      "secureSpotPrice": null,
+      "communitySpotPrice": 0.10,
+      "maxGpuCount": 1,
+      "maxGpuCountSecureCloud": 0,
+      "maxGpuCountCommunityCloud": 1,
+      "lowestPrice": {
+        "minimumBidPrice": 0.10,
+        "uninterruptablePrice": 0.15,
+        "stockStatus": "High",
+        "rentedCount": 20,
+        "totalCount": 50,
+        "rentalPercentage": 40.0,
+        "maxUnreservedGpuCount": 30,
+        "availableGpuCounts": [1]
+      }
+    }
+  ]
+}
