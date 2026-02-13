@@ -5,7 +5,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from rpctl.api.rest_client import _extract_status_code
 from rpctl.errors import ApiError, AuthenticationError, ResourceNotFoundError
 

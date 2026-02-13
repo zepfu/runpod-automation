@@ -6,8 +6,6 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-from typer.testing import CliRunner
-
 from rpctl.main import app
 from rpctl.models.capacity import (
     Datacenter,
@@ -17,6 +15,7 @@ from rpctl.models.capacity import (
     GpuStock,
     GpuType,
 )
+from typer.testing import CliRunner
 
 runner = CliRunner()
 
