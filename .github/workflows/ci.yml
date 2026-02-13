@@ -39,8 +39,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev]" pip-audit
-      - run: pip-audit --strict --desc --skip-editable
+      - run: pip install ".[dev]" pip-audit
+      - run: pip-audit --strict --desc
 
   build:
     runs-on: ubuntu-latest
