@@ -6,11 +6,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from typer.testing import CliRunner
+
 from rpctl.errors import ApiError, ConfigError, PresetError
 from rpctl.main import app
 from rpctl.models.endpoint import Endpoint
 from rpctl.models.pod import Pod
-from typer.testing import CliRunner
 
 runner = CliRunner()
 

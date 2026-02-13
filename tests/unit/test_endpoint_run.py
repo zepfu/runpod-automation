@@ -56,8 +56,9 @@ def test_endpoint_service_purge_queue():
 
 def test_cli_endpoint_run_sync():
     """rpctl endpoint run EP_ID runs sync by default."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_result = {"output": "hello world", "status": "COMPLETED"}
@@ -77,8 +78,9 @@ def test_cli_endpoint_run_sync():
 
 def test_cli_endpoint_run_async():
     """rpctl endpoint run EP_ID --async submits async job."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -100,8 +102,9 @@ def test_cli_endpoint_run_async():
 
 def test_cli_endpoint_run_invalid_json():
     """rpctl endpoint run exits 1 on invalid JSON input."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -114,8 +117,9 @@ def test_cli_endpoint_run_invalid_json():
 
 def test_cli_endpoint_purge_queue():
     """rpctl endpoint purge-queue EP_ID --confirm purges the queue."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_result = {"status": "completed", "removed": 3}
@@ -135,8 +139,9 @@ def test_cli_endpoint_purge_queue():
 
 def test_cli_endpoint_purge_queue_api_error():
     """rpctl endpoint purge-queue exits 1 on API error."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 

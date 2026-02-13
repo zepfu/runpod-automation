@@ -6,10 +6,11 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typer.testing import CliRunner
+
 from rpctl.main import app
 from rpctl.models.endpoint import Endpoint
 from rpctl.models.pod import Pod
-from typer.testing import CliRunner
 
 runner = CliRunner()
 

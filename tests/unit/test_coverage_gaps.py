@@ -6,6 +6,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 import yaml
+
 from rpctl.errors import AuthenticationError, ResourceNotFoundError
 from rpctl.models.endpoint import EndpointCreateParams
 from rpctl.models.pod import PodCreateParams
@@ -214,8 +215,9 @@ def test_preset_list_skips_malformed(tmp_path):
 
 
 def test_main_no_subcommand():
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     # With no_args_is_help=True, typer shows help and exits
@@ -225,8 +227,9 @@ def test_main_no_subcommand():
 
 def test_main_verbose_no_subcommand():
     """Verbose flag with no subcommand still prints help."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     result = runner.invoke(app, ["--verbose"])
@@ -235,8 +238,9 @@ def test_main_verbose_no_subcommand():
 
 
 def test_main_version():
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     result = runner.invoke(app, ["--version"])
@@ -260,8 +264,9 @@ def test_get_preset_service_default():
 
 def test_preset_delete_prompt_abort():
     """preset delete aborts on 'n' input."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_svc = MagicMock()

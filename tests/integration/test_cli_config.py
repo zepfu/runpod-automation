@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from rpctl.main import app
 from typer.testing import CliRunner
+
+from rpctl.main import app
 
 runner = CliRunner()
 

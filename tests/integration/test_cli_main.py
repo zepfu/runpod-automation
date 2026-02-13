@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from rpctl.main import app
 from typer.testing import CliRunner
+
+from rpctl.main import app
 
 runner = CliRunner()
 

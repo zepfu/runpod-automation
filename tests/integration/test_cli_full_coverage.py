@@ -7,13 +7,14 @@ from contextlib import contextmanager
 from unittest.mock import MagicMock, patch
 
 import pytest
+from typer.testing import CliRunner
+
 from rpctl.errors import ApiError
 from rpctl.main import app
 from rpctl.models.endpoint import Endpoint
 from rpctl.models.pod import Pod
 from rpctl.models.template import Template
 from rpctl.models.volume import Volume
-from typer.testing import CliRunner
 
 runner = CliRunner()
 

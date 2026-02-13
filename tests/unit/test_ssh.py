@@ -128,8 +128,9 @@ def test_build_ssh_command_strict_host_checking_disabled():
 
 def test_ssh_connect_dry_run():
     """--dry-run prints the SSH command without executing."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_pod = _make_pod(
@@ -154,8 +155,9 @@ def test_ssh_connect_dry_run():
 
 def test_ssh_connect_not_running():
     """Error when pod is not running."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_pod = _make_pod(status="EXITED")
@@ -172,8 +174,9 @@ def test_ssh_connect_not_running():
 
 def test_ssh_connect_api_error():
     """Error when pod fetch fails."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -188,8 +191,9 @@ def test_ssh_connect_api_error():
 
 def test_ssh_connect_execvp_called():
     """Verify os.execvp is called with the right SSH command."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_pod = _make_pod(
@@ -219,8 +223,9 @@ def test_ssh_connect_execvp_called():
 
 def test_ssh_connect_with_options():
     """Verify --user, --key, --command options are passed through."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     runtime = {"ports": [{"ip": "1.1.1.1", "privatePort": 22, "publicPort": 22}]}
