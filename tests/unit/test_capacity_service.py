@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from rpctl.errors import ResourceNotFoundError
 from rpctl.services.capacity_service import CapacityService
 

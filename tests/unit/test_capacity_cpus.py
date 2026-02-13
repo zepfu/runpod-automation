@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from typer.testing import CliRunner
+
 from rpctl.models.capacity import CpuType
 from rpctl.services.capacity_service import CapacityService
-from typer.testing import CliRunner
 
 runner = CliRunner()
 

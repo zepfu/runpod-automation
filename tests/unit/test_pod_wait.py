@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from rpctl.errors import RpctlError
 from rpctl.models.pod import Pod, PodCreateParams
 from rpctl.services.poll import PollTimeoutError
@@ -170,8 +171,9 @@ def test_pod_service_wait_timeout():
 
 def test_cli_pod_wait_success():
     """rpctl pod wait POD_ID succeeds when pod is running."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -189,8 +191,9 @@ def test_cli_pod_wait_success():
 
 def test_cli_pod_wait_timeout():
     """rpctl pod wait exits 2 on timeout."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -205,8 +208,9 @@ def test_cli_pod_wait_timeout():
 
 def test_cli_pod_wait_api_error():
     """rpctl pod wait exits 1 on API error."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -224,8 +228,9 @@ def test_cli_pod_wait_api_error():
 
 def test_cli_pod_create_docker_start_cmd():
     """--docker-start-cmd is passed through to create."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -252,8 +257,9 @@ def test_cli_pod_create_docker_start_cmd():
 
 def test_cli_pod_create_entrypoint():
     """--entrypoint is passed through to create."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -273,8 +279,9 @@ def test_cli_pod_create_entrypoint():
 
 def test_cli_pod_create_public_ip():
     """--public-ip sets support_public_ip=True."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -294,8 +301,9 @@ def test_cli_pod_create_public_ip():
 
 def test_cli_pod_create_cuda_versions():
     """--cuda-version is repeatable and passed through."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -324,8 +332,9 @@ def test_cli_pod_create_cuda_versions():
 
 def test_cli_pod_create_no_ssh():
     """--no-ssh sets start_ssh=False."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -345,8 +354,9 @@ def test_cli_pod_create_no_ssh():
 
 def test_cli_pod_create_country():
     """--country sets country_code."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -366,8 +376,9 @@ def test_cli_pod_create_country():
 
 def test_cli_pod_create_min_download():
     """--min-download sets min_download."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -387,8 +398,9 @@ def test_cli_pod_create_min_download():
 
 def test_cli_pod_create_min_upload():
     """--min-upload sets min_upload."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 

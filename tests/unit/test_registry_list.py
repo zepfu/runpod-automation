@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from typer.testing import CliRunner
+
 from rpctl.errors import ApiError
 from rpctl.services.registry_service import RegistryService
-from typer.testing import CliRunner
 
 runner = CliRunner()
 

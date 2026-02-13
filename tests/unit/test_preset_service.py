@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from rpctl.errors import PresetError
 from rpctl.models.endpoint import Endpoint
 from rpctl.models.pod import Pod

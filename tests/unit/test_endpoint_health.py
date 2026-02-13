@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from rpctl.errors import RpctlError
 from rpctl.services.poll import PollTimeoutError
 
@@ -64,8 +65,9 @@ def test_endpoint_service_wait_timeout():
 
 def test_cli_endpoint_health():
     """rpctl endpoint health EP_ID returns health data."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_health = {
@@ -85,8 +87,9 @@ def test_cli_endpoint_health():
 
 def test_cli_endpoint_health_json():
     """rpctl endpoint health EP_ID --output json outputs JSON."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_health = {
@@ -106,8 +109,9 @@ def test_cli_endpoint_health_json():
 
 def test_cli_endpoint_health_api_error():
     """rpctl endpoint health handles API errors."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -125,8 +129,9 @@ def test_cli_endpoint_health_api_error():
 
 def test_cli_endpoint_wait_success():
     """rpctl endpoint wait EP_ID succeeds when workers ready."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
     mock_health = {
@@ -148,8 +153,9 @@ def test_cli_endpoint_wait_success():
 
 def test_cli_endpoint_wait_timeout():
     """rpctl endpoint wait exits 2 on timeout."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -164,8 +170,9 @@ def test_cli_endpoint_wait_timeout():
 
 def test_cli_endpoint_wait_api_error():
     """rpctl endpoint wait exits 1 on API error."""
-    from rpctl.main import app
     from typer.testing import CliRunner
+
+    from rpctl.main import app
 
     runner = CliRunner()
 
@@ -208,9 +215,10 @@ def test_endpoint_create_params_no_cuda_versions():
 
 def test_cli_endpoint_create_cuda_version():
     """--cuda-version is passed through to endpoint create."""
+    from typer.testing import CliRunner
+
     from rpctl.main import app
     from rpctl.models.endpoint import Endpoint
-    from typer.testing import CliRunner
 
     runner = CliRunner()
 
