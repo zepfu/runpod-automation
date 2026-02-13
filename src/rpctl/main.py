@@ -27,7 +27,12 @@ def _version_callback(value: bool) -> None:
 def main(
     ctx: typer.Context,
     profile: str | None = typer.Option(None, help="Config profile to use"),
-    json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
+    json_output: bool = typer.Option(
+        False, "--json", help="Output as JSON (shorthand for --output json)"
+    ),
+    output_format: str | None = typer.Option(
+        None, "--output", "-o", help="Output format: table, json, csv, yaml"
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
     version: bool = typer.Option(
         False,
@@ -39,7 +44,14 @@ def main(
 ) -> None:
     ctx.ensure_object(dict)
     ctx.obj["profile"] = profile
-    ctx.obj["json"] = json_output
+    # Resolve output format: --output takes precedence over --json
+    if output_format:
+        ctx.obj["output_format"] = output_format
+    elif json_output:
+        ctx.obj["output_format"] = "json"
+    else:
+        ctx.obj["output_format"] = "table"
+    ctx.obj["json"] = ctx.obj["output_format"] == "json"
     ctx.obj["verbose"] = verbose
 
     level = logging.DEBUG if verbose else logging.WARNING

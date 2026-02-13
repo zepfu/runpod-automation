@@ -38,8 +38,8 @@ def create(
     try:
         svc = _get_volume_service(ctx)
         volume = svc.create_volume(name=name, size_gb=size, data_center_id=region)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(volume, json_mode=json_mode, table_type="volume_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(volume, output_format=fmt, table_type="volume_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -51,8 +51,8 @@ def list_volumes(ctx: typer.Context) -> None:
     try:
         svc = _get_volume_service(ctx)
         volumes = svc.list_volumes()
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(volumes, json_mode=json_mode, table_type="volume_list")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(volumes, output_format=fmt, table_type="volume_list")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -67,8 +67,8 @@ def get(
     try:
         svc = _get_volume_service(ctx)
         volume = svc.get_volume(volume_id)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(volume, json_mode=json_mode, table_type="volume_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(volume, output_format=fmt, table_type="volume_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -95,8 +95,8 @@ def update(
     try:
         svc = _get_volume_service(ctx)
         volume = svc.update_volume(volume_id, **kwargs)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(volume, json_mode=json_mode, table_type="volume_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(volume, output_format=fmt, table_type="volume_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None

@@ -61,8 +61,8 @@ def create(
     try:
         svc = _get_template_service(ctx)
         template = svc.create_template(**kwargs)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(template, json_mode=json_mode, table_type="template_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(template, output_format=fmt, table_type="template_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -74,8 +74,8 @@ def list_templates(ctx: typer.Context) -> None:
     try:
         svc = _get_template_service(ctx)
         templates = svc.list_templates()
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(templates, json_mode=json_mode, table_type="template_list")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(templates, output_format=fmt, table_type="template_list")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -90,8 +90,8 @@ def get(
     try:
         svc = _get_template_service(ctx)
         template = svc.get_template(template_id)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(template, json_mode=json_mode, table_type="template_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(template, output_format=fmt, table_type="template_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -118,8 +118,8 @@ def update(
     try:
         svc = _get_template_service(ctx)
         template = svc.update_template(template_id, **kwargs)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(template, json_mode=json_mode, table_type="template_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(template, output_format=fmt, table_type="template_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None

@@ -147,7 +147,7 @@ def create(
             merged[key] = value
 
     params = PodCreateParams(**merged)
-    json_mode = ctx.obj.get("json", False) if ctx.obj else False
+    fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
 
     # Step 4: Save preset if requested
     if save_preset:
@@ -167,13 +167,13 @@ def create(
 
     # Step 5: Dry run or create
     if dry_run:
-        output(params, json_mode=json_mode, table_type="pod_create_dry_run")
+        output(params, output_format=fmt, table_type="pod_create_dry_run")
         return
 
     try:
         svc = _get_pod_service(ctx)
         pod = svc.create_pod(params)
-        output(pod, json_mode=json_mode, table_type="pod_detail")
+        output(pod, output_format=fmt, table_type="pod_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -188,8 +188,8 @@ def list_pods(
     try:
         svc = _get_pod_service(ctx)
         pods = svc.list_pods(status_filter=status)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(pods, json_mode=json_mode, table_type="pod_list")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(pods, output_format=fmt, table_type="pod_list")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
@@ -204,8 +204,8 @@ def get(
     try:
         svc = _get_pod_service(ctx)
         pod = svc.get_pod(pod_id)
-        json_mode = ctx.obj.get("json", False) if ctx.obj else False
-        output(pod, json_mode=json_mode, table_type="pod_detail")
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(pod, output_format=fmt, table_type="pod_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
