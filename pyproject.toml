@@ -17,6 +17,7 @@ dependencies = [
     "keyring>=25.0",
     "pyyaml>=6.0",
     "runpod>=1.7.0",
+    "cryptography>=46.0.5",
 ]
 
 [project.optional-dependencies]
