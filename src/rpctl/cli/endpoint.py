@@ -359,6 +359,23 @@ def job_cancel(
 
 
 @app.command()
+def stream(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    job_id: str = typer.Argument(help="Job ID"),
+) -> None:
+    """Stream live output from a running job."""
+    try:
+        svc = _get_endpoint_service(ctx)
+        chunks = svc.stream(endpoint_id, job_id)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(chunks, output_format=fmt, table_type="endpoint_stream")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
 def delete(
     ctx: typer.Context,
     endpoint_id: str = typer.Argument(help="Endpoint ID"),

@@ -114,6 +114,19 @@ class RestClient:
         resp.raise_for_status()
         return resp.json()  # type: ignore[no-any-return]
 
+    def endpoint_stream(self, endpoint_id: str, job_id: str) -> list[dict[str, Any]]:
+        """Stream output from a running job. Returns list of output chunks."""
+        import httpx
+
+        url = f"https://api.runpod.ai/v2/{endpoint_id}/stream/{job_id}"
+        headers = {
+            "Authorization": f"Bearer {self._runpod.api_key}",
+        }
+        resp = httpx.get(url, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("stream", [])  # type: ignore[no-any-return]
+
     # --- Templates ---
 
     def get_templates(self) -> list[dict[str, Any]]:

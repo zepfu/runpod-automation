@@ -48,6 +48,7 @@ def create(
         None, "--registry-auth", help="Registry auth ID for private Docker images"
     ),
     readme: str | None = typer.Option(None, help="Template description"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
 ) -> None:
     """Create a new template."""
     env_dict = {}
@@ -78,10 +79,15 @@ def create(
     if readme:
         kwargs["readme"] = readme
 
+    fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+
+    if dry_run:
+        output(kwargs, output_format=fmt, table_type="template_create_dry_run")
+        return
+
     try:
         svc = _get_template_service(ctx)
         template = svc.create_template(**kwargs)
-        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
         output(template, output_format=fmt, table_type="template_detail")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
