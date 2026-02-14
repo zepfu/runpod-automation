@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install ".[dev]" pip-audit
-      - run: pip-audit --desc --skip-editable
+      - run: pip-audit --desc --skip-editable --ignore-vuln CVE-2026-26007  # runpod SDK pins cryptography<46
 
   build:
     runs-on: ubuntu-latest
