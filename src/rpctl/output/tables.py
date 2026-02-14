@@ -351,6 +351,19 @@ def print_endpoint_job_status(result: Any) -> None:
         console.print(result)
 
 
+def print_endpoint_stream(chunks: list[Any]) -> None:
+    """Render streamed job output."""
+    if not chunks:
+        console.print("[dim]No stream output available.[/dim]")
+        return
+    for chunk in chunks:
+        if isinstance(chunk, dict):
+            output_val = chunk.get("output", chunk)
+            console.print(str(output_val))
+        else:
+            console.print(str(chunk))
+
+
 def print_endpoint_purge_result(result: Any) -> None:
     """Render purge queue result."""
     if isinstance(result, dict):

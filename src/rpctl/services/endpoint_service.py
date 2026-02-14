@@ -64,6 +64,10 @@ class EndpointService:
         """Cancel a running or queued job."""
         return self._client.endpoint_job_cancel(endpoint_id, job_id)
 
+    def stream(self, endpoint_id: str, job_id: str) -> list[dict[str, Any]]:
+        """Stream output from a running job."""
+        return self._client.endpoint_stream(endpoint_id, job_id)
+
     def wait_until_ready(
         self,
         endpoint_id: str,
