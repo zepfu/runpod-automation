@@ -20,3 +20,7 @@ class UserService:
     def set_ssh_key(self, pubkey: str) -> dict[str, Any]:
         """Upload/update the user's SSH public key."""
         return self._client.update_user_settings(pubkey)
+
+    def get_account_info(self) -> dict[str, Any]:
+        """Get account balance and spending info."""
+        return self._client.get_account_info()

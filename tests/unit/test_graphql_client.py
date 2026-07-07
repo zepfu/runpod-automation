@@ -11,7 +11,7 @@ import respx
 from rpctl.api.graphql_client import GraphQLClient
 from rpctl.errors import ApiError, AuthenticationError
 
-GQL_URL = "https://api.runpod.io/graphql/"
+GQL_URL = "https://api.runpod.io/graphql"
 QUERY = "query { gpuTypes { id } }"
 
 

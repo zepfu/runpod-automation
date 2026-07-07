@@ -571,3 +571,68 @@ def print_registry_detail(data: Any) -> None:
         console.print(table)
     else:
         console.print(data)
+
+
+# --- Account tables ---
+
+
+def print_account_balance(data: Any) -> None:
+    """Render account balance."""
+    if isinstance(data, dict):
+        table = Table(title="Account Balance")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", justify="right")
+
+        balance = data.get("clientBalance", 0)
+        limit = data.get("spendLimit", 0)
+        table.add_row("Balance", f"${balance:.2f}")
+        table.add_row("Spend Limit", f"${limit:.2f}" if limit else "[dim]Not set[/dim]")
+
+        console.print(table)
+    else:
+        console.print(data)
+
+
+def print_account_spending(data: Any) -> None:
+    """Render current spending rate."""
+    if isinstance(data, dict):
+        table = Table(title="Current Spending")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", justify="right")
+
+        spend = data.get("currentSpendPerHr", 0)
+        balance = data.get("clientBalance", 0)
+        table.add_row("Current Spend", f"${spend:.4f}/hr")
+        table.add_row("Balance", f"${balance:.2f}")
+
+        if spend and spend > 0 and balance > 0:
+            hours_remaining = balance / spend
+            table.add_row("Est. Hours Remaining", f"{hours_remaining:.1f}")
+
+        console.print(table)
+    else:
+        console.print(data)
+
+
+# --- Secret tables ---
+
+
+def print_secret_list(secrets: list[Any]) -> None:
+    """Render secrets as a table."""
+    if not secrets:
+        console.print("[dim]No secrets found.[/dim]")
+        return
+
+    table = Table(title="Environment Secrets")
+    table.add_column("Name", style="cyan", no_wrap=True)
+    table.add_column("Value")
+
+    for secret in secrets:
+        if isinstance(secret, dict):
+            table.add_row(
+                str(secret.get("name", "-")),
+                str(secret.get("value", "-")),
+            )
+
+    console.print(table)
+    console.print(f"\n[dim]{len(secrets)} secrets listed.[/dim]")

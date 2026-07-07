@@ -49,6 +49,20 @@ class PodService:
         """Terminate and delete a pod."""
         return self._client.terminate_pod(pod_id)
 
+    def edit_pod(self, pod_id: str, **kwargs: Any) -> dict[str, Any]:
+        """Edit a pod's configuration (image, disk, ports, etc.)."""
+        return self._client.edit_pod(pod_id, **kwargs)
+
+    def migrate_pod(
+        self, pod_id: str, gpu_type_id: str | None = None, bid_per_gpu: float | None = None
+    ) -> dict[str, Any]:
+        """Migrate a stopped pod to a different GPU type or bid price."""
+        return self._client.migrate_pod(pod_id, gpu_type_id=gpu_type_id, bid_per_gpu=bid_per_gpu)
+
+    def reset_pod(self, pod_id: str, hard_reset: bool = False) -> dict[str, Any]:
+        """Reset a pod. Hard reset wipes the container disk."""
+        return self._client.reset_pod(pod_id, hard_reset=hard_reset)
+
     def wait_until_running(
         self,
         pod_id: str,

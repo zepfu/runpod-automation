@@ -53,6 +53,7 @@ def create(
         [], "--cuda-version", help="Allowed CUDA versions [repeatable]"
     ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
+    force: bool = typer.Option(False, "--force", help="Bypass guardrails restrictions"),
 ) -> None:
     """Create a new serverless endpoint."""
     from rpctl.models.endpoint import EndpointCreateParams
@@ -146,6 +147,42 @@ def create(
         path = preset_svc.save(to_save, overwrite=True)
         Console().print(f"[green]Preset '{save_preset}' saved to {path}[/green]")
 
+    # Step 4b: Guardrails check
+    if not dry_run and not force:
+        from rpctl.config.settings import Settings as GuardrailSettings
+
+        try:
+            gr_settings = GuardrailSettings.load(
+                profile=ctx.obj.get("profile") if ctx.obj else None
+            )
+            gr = gr_settings.guardrails
+            if not gr.is_empty():
+                from rpctl.services.guardrails_service import GuardrailsService
+
+                gr_svc = GuardrailsService(gr)
+                violations = gr_svc.validate_endpoint_create(params.model_dump())
+                if violations:
+                    err_console.print("[red]Guardrail violations:[/red]")
+                    for v in violations:
+                        err_console.print(f"  [red]\u2022[/red] {v}")
+                    err_console.print("\nUse [bold]--force[/bold] to bypass.")
+                    raise typer.Exit(code=7)
+
+                # Spend limit check (warning only)
+                if gr.max_hourly_spend is not None:
+                    try:
+                        svc = _get_endpoint_service(ctx)
+                        account = svc._client.get_account_info()
+                        spend_warnings = gr_svc.check_spend_limit(account)
+                        for w in spend_warnings:
+                            err_console.print(f"[yellow]Warning:[/yellow] {w}")
+                    except Exception:
+                        pass
+        except typer.Exit:
+            raise
+        except Exception:
+            pass
+
     # Step 5: Dry run or create
     if dry_run:
         output(params, output_format=fmt, table_type="endpoint_create_dry_run")
@@ -219,6 +256,28 @@ def update(
     try:
         svc = _get_endpoint_service(ctx)
         endpoint = svc.update_endpoint(endpoint_id, **kwargs)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(endpoint, output_format=fmt, table_type="endpoint_detail")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def scale(
+    ctx: typer.Context,
+    endpoint_id: str = typer.Argument(help="Endpoint ID"),
+    min_workers: int | None = typer.Option(None, "--min", help="Minimum workers"),
+    max_workers: int | None = typer.Option(None, "--max", help="Maximum workers"),
+) -> None:
+    """Scale endpoint workers (shorthand for update --workers-min/max)."""
+    if min_workers is None and max_workers is None:
+        err_console.print("[yellow]Provide --min and/or --max to scale.[/yellow]")
+        raise typer.Exit(code=1)
+
+    try:
+        svc = _get_endpoint_service(ctx)
+        endpoint = svc.scale_endpoint(endpoint_id, workers_min=min_workers, workers_max=max_workers)
         fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
         output(endpoint, output_format=fmt, table_type="endpoint_detail")
     except RpctlError as e:

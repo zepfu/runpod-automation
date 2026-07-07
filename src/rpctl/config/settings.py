@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from rpctl.config.guardrails import GuardrailsConfig
 
 import yaml
 
@@ -92,9 +95,19 @@ class Settings:
         if key:
             return key
 
-        import keyring
+        try:
+            import keyring
 
-        key = keyring.get_password(KEYRING_SERVICE, self.active_profile)
+            key = keyring.get_password(KEYRING_SERVICE, self.active_profile)
+        except Exception as e:
+            if "NoKeyringError" in type(e).__name__ or "no backend" in str(e).lower():
+                raise AuthenticationError(
+                    "No keyring backend installed. "
+                    "Install 'keyrings.alt' (pip install keyrings.alt) "
+                    "or set RUNPOD_API_KEY environment variable."
+                ) from e
+            raise
+
         if key:
             return key
 
@@ -123,6 +136,18 @@ class Settings:
             return defaults[key]
 
         return default
+
+    @property
+    def guardrails(self) -> GuardrailsConfig:
+        """Return guardrails config from the YAML."""
+        from rpctl.config.guardrails import GuardrailsConfig
+
+        return GuardrailsConfig.from_dict(self._data.get("guardrails", {}))
+
+    def set_guardrail(self, key: str, value: Any) -> None:
+        """Set a guardrail value."""
+        guardrails = self._data.setdefault("guardrails", {})
+        guardrails[key] = value
 
     def set_default(self, key: str, value: str) -> None:
         """Set a value in the active profile."""

@@ -7,6 +7,8 @@ from typing import Any
 from rpctl.output.csv_output import print_csv
 from rpctl.output.json_output import print_json
 from rpctl.output.tables import (
+    print_account_balance,
+    print_account_spending,
     print_cpu_list,
     print_dry_run,
     print_endpoint_detail,
@@ -26,6 +28,7 @@ from rpctl.output.tables import (
     print_regions,
     print_registry_detail,
     print_registry_list,
+    print_secret_list,
     print_template_detail,
     print_template_list,
     print_user_info,
@@ -61,6 +64,9 @@ TABLE_RENDERERS = {
     "user_info": print_user_info,
     "registry_list": print_registry_list,
     "registry_detail": print_registry_detail,
+    "account_balance": print_account_balance,
+    "account_spending": print_account_spending,
+    "secret_list": print_secret_list,
 }
 
 

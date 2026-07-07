@@ -91,6 +91,7 @@ def create(
         None, "--min-upload", help="Minimum upload speed in Mbps"
     ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show params without creating"),
+    force: bool = typer.Option(False, "--force", help="Bypass guardrails restrictions"),
 ) -> None:
     """Create a new GPU/CPU pod."""
     from rpctl.models.pod import PodCreateParams
@@ -202,6 +203,42 @@ def create(
         path = preset_svc.save(to_save, overwrite=True)
         Console().print(f"[green]Preset '{save_preset}' saved to {path}[/green]")
 
+    # Step 4b: Guardrails check
+    if not dry_run and not force:
+        from rpctl.config.settings import Settings as GuardrailSettings
+
+        try:
+            gr_settings = GuardrailSettings.load(
+                profile=ctx.obj.get("profile") if ctx.obj else None
+            )
+            gr = gr_settings.guardrails
+            if not gr.is_empty():
+                from rpctl.services.guardrails_service import GuardrailsService
+
+                gr_svc = GuardrailsService(gr)
+                violations = gr_svc.validate_pod_create(params.model_dump())
+                if violations:
+                    err_console.print("[red]Guardrail violations:[/red]")
+                    for v in violations:
+                        err_console.print(f"  [red]\u2022[/red] {v}")
+                    err_console.print("\nUse [bold]--force[/bold] to bypass.")
+                    raise typer.Exit(code=7)
+
+                # Spend limit check (warning only)
+                if gr.max_hourly_spend is not None:
+                    try:
+                        svc = _get_pod_service(ctx)
+                        account = svc._client.get_account_info()
+                        spend_warnings = gr_svc.check_spend_limit(account)
+                        for w in spend_warnings:
+                            err_console.print(f"[yellow]Warning:[/yellow] {w}")
+                    except Exception:
+                        pass  # Don't block on spend check failure
+        except typer.Exit:
+            raise
+        except Exception:
+            pass  # Don't block on guardrails config loading errors
+
     # Step 5: Dry run or create
     if dry_run:
         output(params, output_format=fmt, table_type="pod_create_dry_run")
@@ -307,6 +344,100 @@ def delete(
         svc = _get_pod_service(ctx)
         svc.delete_pod(pod_id)
         Console().print(f"[green]Pod {pod_id} deleted.[/green]")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def edit(
+    ctx: typer.Context,
+    pod_id: str = typer.Argument(help="Pod ID"),
+    image: str | None = typer.Option(None, help="New container image"),
+    container_disk: int | None = typer.Option(None, help="Container disk in GB"),
+    volume_disk: int | None = typer.Option(None, help="Persistent volume in GB"),
+    volume_mount: str | None = typer.Option(None, help="Volume mount path"),
+    ports: str | None = typer.Option(None, help="Ports to expose"),
+    docker_start_cmd: str | None = typer.Option(
+        None, "--docker-start-cmd", help="Docker start command"
+    ),
+) -> None:
+    """Edit a pod's configuration."""
+    kwargs: dict[str, Any] = {}
+    if image is not None:
+        kwargs["imageName"] = image
+    if container_disk is not None:
+        kwargs["containerDiskInGb"] = container_disk
+    if volume_disk is not None:
+        kwargs["volumeInGb"] = volume_disk
+    if volume_mount is not None:
+        kwargs["volumeMountPath"] = volume_mount
+    if ports is not None:
+        kwargs["ports"] = ports
+    if docker_start_cmd is not None:
+        kwargs["dockerStartCmd"] = docker_start_cmd
+
+    if not kwargs:
+        err_console.print("[yellow]No edit parameters provided.[/yellow]")
+        raise typer.Exit(code=1)
+
+    try:
+        svc = _get_pod_service(ctx)
+        result = svc.edit_pod(pod_id, **kwargs)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        if fmt != "table":
+            output(result, output_format=fmt, table_type="pod_detail")
+        else:
+            Console().print(f"[green]Pod {pod_id} updated.[/green]")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def migrate(
+    ctx: typer.Context,
+    pod_id: str = typer.Argument(help="Pod ID"),
+    gpu: str | None = typer.Option(None, "--gpu", help="New GPU type ID"),
+    bid: float | None = typer.Option(None, "--bid", help="Bid price per GPU (spot pricing)"),
+) -> None:
+    """Migrate a stopped pod to a different GPU type or bid price."""
+    if gpu is None and bid is None:
+        err_console.print("[yellow]Provide --gpu and/or --bid to migrate.[/yellow]")
+        raise typer.Exit(code=1)
+
+    try:
+        svc = _get_pod_service(ctx)
+        result = svc.migrate_pod(pod_id, gpu_type_id=gpu, bid_per_gpu=bid)
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        if fmt != "table":
+            output(result, output_format=fmt, table_type="pod_detail")
+        else:
+            Console().print(f"[green]Pod {pod_id} migration initiated.[/green]")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def reset(
+    ctx: typer.Context,
+    pod_id: str = typer.Argument(help="Pod ID"),
+    hard: bool = typer.Option(False, "--hard", help="Hard reset (wipes container disk)"),
+    confirm: bool = typer.Option(False, "--confirm", help="Skip confirmation prompt"),
+) -> None:
+    """Reset a pod."""
+    if hard and not confirm:
+        typer.confirm(
+            f"Hard reset pod {pod_id}? This will wipe the container disk",
+            abort=True,
+        )
+
+    try:
+        svc = _get_pod_service(ctx)
+        svc.reset_pod(pod_id, hard_reset=hard)
+        reset_type = "Hard reset" if hard else "Reset"
+        Console().print(f"[green]{reset_type} initiated for pod {pod_id}.[/green]")
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None

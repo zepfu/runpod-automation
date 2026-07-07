@@ -8,7 +8,7 @@ import sys
 import typer
 
 from rpctl import __version__
-from rpctl.cli import capacity, config, endpoint, pod, preset, registry, ssh, template, user, volume
+from rpctl.cli import capacity, config, endpoint, pod, preset, registry, secret, ssh, template, user, volume
 
 app = typer.Typer(
     name="rpctl",
@@ -77,6 +77,7 @@ app.add_typer(capacity.app, name="capacity", help="Query GPU/CPU availability an
 app.add_typer(registry.app, name="registry", help="Manage container registry authentication.")
 app.add_typer(ssh.app, name="ssh", help="SSH into a running pod.")
 app.add_typer(user.app, name="user", help="Manage account settings.")
+app.add_typer(secret.app, name="secret", help="Manage environment secrets.")
 
 if __name__ == "__main__":
     app()

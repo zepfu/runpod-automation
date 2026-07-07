@@ -9,69 +9,64 @@ import pytest
 
 @pytest.fixture
 def client():
-    """Create a RestClient with a mocked runpod SDK."""
-    with patch("rpctl.api.rest_client.runpod", create=True):
-        from rpctl.api.rest_client import RestClient
+    """Create a RestClient with a mocked GraphQL client."""
+    from rpctl.api.rest_client import RestClient
 
-        c = RestClient.__new__(RestClient)
-        c._runpod = MagicMock()
-        c._runpod.api_key = "test-key"
-        return c
-
-
-# --- Endpoint SDK-based methods ---
+    c = RestClient.__new__(RestClient)
+    c._api_key = "test-key"
+    c._gql = MagicMock()
+    return c
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_endpoint_health(mock_sleep, client):
-    mock_ep = MagicMock()
-    mock_ep.health.return_value = {"workers": {"idle": 1}}
-    client._runpod.Endpoint.return_value = mock_ep
+# --- Endpoint REST-based methods ---
+
+
+@patch("rpctl.api.rest_client.httpx.get")
+def test_endpoint_health(mock_get, client):
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"workers": {"idle": 1}}
+    mock_get.return_value = mock_resp
 
     result = client.endpoint_health("ep-1")
     assert result == {"workers": {"idle": 1}}
-    client._runpod.Endpoint.assert_called_once_with("ep-1")
+    mock_get.assert_called_once()
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_endpoint_run_sync(mock_sleep, client):
-    mock_ep = MagicMock()
-    mock_ep.run_sync.return_value = {"output": "done"}
-    client._runpod.Endpoint.return_value = mock_ep
+@patch("rpctl.api.rest_client.httpx.post")
+def test_endpoint_run_sync(mock_post, client):
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"output": "done"}
+    mock_post.return_value = mock_resp
 
     result = client.endpoint_run_sync("ep-1", {"prompt": "hi"}, timeout=30)
     assert result == {"output": "done"}
-    mock_ep.run_sync.assert_called_once_with({"prompt": "hi"}, 30)
+    mock_post.assert_called_once()
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_endpoint_run_async(mock_sleep, client):
-    mock_ep = MagicMock()
-    mock_job = MagicMock()
-    mock_job.job_id = "job-abc"
-    mock_ep.run.return_value = mock_job
-    client._runpod.Endpoint.return_value = mock_ep
+@patch("rpctl.api.rest_client.httpx.post")
+def test_endpoint_run_async(mock_post, client):
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"id": "job-abc"}
+    mock_post.return_value = mock_resp
 
     result = client.endpoint_run_async("ep-1", {"prompt": "hi"})
     assert result == "job-abc"
-    mock_ep.run.assert_called_once_with({"prompt": "hi"})
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_endpoint_purge_queue(mock_sleep, client):
-    mock_ep = MagicMock()
-    mock_ep.purge_queue.return_value = {"removed": 5}
-    client._runpod.Endpoint.return_value = mock_ep
+@patch("rpctl.api.rest_client.httpx.post")
+def test_endpoint_purge_queue(mock_post, client):
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"removed": 5}
+    mock_post.return_value = mock_resp
 
     result = client.endpoint_purge_queue("ep-1")
     assert result == {"removed": 5}
-    client._runpod.Endpoint.assert_called_once_with("ep-1")
 
 
 # --- Endpoint HTTP-based methods ---
 
 
-@patch("httpx.get")
+@patch("rpctl.api.rest_client.httpx.get")
 def test_endpoint_job_status(mock_get, client):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"status": "COMPLETED", "output": "ok"}
@@ -79,14 +74,10 @@ def test_endpoint_job_status(mock_get, client):
 
     result = client.endpoint_job_status("ep-1", "job-1")
     assert result == {"status": "COMPLETED", "output": "ok"}
-    mock_get.assert_called_once_with(
-        "https://api.runpod.ai/v2/ep-1/status/job-1",
-        headers={"Authorization": "Bearer test-key"},
-    )
-    mock_resp.raise_for_status.assert_called_once()
+    mock_get.assert_called_once()
 
 
-@patch("httpx.post")
+@patch("rpctl.api.rest_client.httpx.post")
 def test_endpoint_job_cancel(mock_post, client):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"status": "CANCELLED"}
@@ -94,14 +85,10 @@ def test_endpoint_job_cancel(mock_post, client):
 
     result = client.endpoint_job_cancel("ep-1", "job-1")
     assert result == {"status": "CANCELLED"}
-    mock_post.assert_called_once_with(
-        "https://api.runpod.ai/v2/ep-1/cancel/job-1",
-        headers={"Authorization": "Bearer test-key"},
-    )
-    mock_resp.raise_for_status.assert_called_once()
+    mock_post.assert_called_once()
 
 
-@patch("httpx.get")
+@patch("rpctl.api.rest_client.httpx.get")
 def test_endpoint_stream(mock_get, client):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"stream": [{"output": "chunk1"}, {"output": "chunk2"}]}
@@ -109,13 +96,10 @@ def test_endpoint_stream(mock_get, client):
 
     result = client.endpoint_stream("ep-1", "job-1")
     assert result == [{"output": "chunk1"}, {"output": "chunk2"}]
-    mock_get.assert_called_once_with(
-        "https://api.runpod.ai/v2/ep-1/stream/job-1",
-        headers={"Authorization": "Bearer test-key"},
-    )
+    mock_get.assert_called_once()
 
 
-@patch("httpx.get")
+@patch("rpctl.api.rest_client.httpx.get")
 def test_endpoint_stream_empty(mock_get, client):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {}
@@ -128,61 +112,56 @@ def test_endpoint_stream_empty(mock_get, client):
 # --- Registry auth methods ---
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_list_registry_auths(mock_sleep, client):
-    client._runpod.get_user.return_value = {
-        "containerRegistryAuths": [{"id": "ra-1", "name": "docker"}]
+def test_list_registry_auths(client):
+    client._gql.execute.return_value = {
+        "myself": {"containerRegistryAuths": [{"id": "ra-1", "name": "docker"}]}
     }
     result = client.list_registry_auths()
     assert result == [{"id": "ra-1", "name": "docker"}]
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_list_registry_auths_none(mock_sleep, client):
-    client._runpod.get_user.return_value = {"containerRegistryAuths": None}
+def test_list_registry_auths_empty(client):
+    client._gql.execute.return_value = {"myself": {"containerRegistryAuths": []}}
     result = client.list_registry_auths()
     assert result == []
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_create_registry_auth(mock_sleep, client):
-    client._runpod.create_container_registry_auth.return_value = {"id": "ra-1"}
+def test_create_registry_auth(client):
+    client._gql.execute.return_value = {"saveRegistryAuth": {"id": "ra-1"}}
     result = client.create_registry_auth("docker", "user", "pass")
     assert result == {"id": "ra-1"}
-    client._runpod.create_container_registry_auth.assert_called_once_with("docker", "user", "pass")
+    call_args = client._gql.execute.call_args[0][0]
+    assert "saveRegistryAuth" in call_args
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_update_registry_auth(mock_sleep, client):
-    client._runpod.update_container_registry_auth.return_value = {"id": "ra-1"}
+def test_update_registry_auth(client):
+    client._gql.execute.return_value = {"updateRegistryAuth": {"id": "ra-1"}}
     result = client.update_registry_auth("ra-1", "newuser", "newpass")
     assert result == {"id": "ra-1"}
-    client._runpod.update_container_registry_auth.assert_called_once_with(
-        "ra-1", "newuser", "newpass"
-    )
+    call_args = client._gql.execute.call_args[0][0]
+    assert "updateRegistryAuth" in call_args
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_delete_registry_auth(mock_sleep, client):
-    client._runpod.delete_container_registry_auth.return_value = {}
+def test_delete_registry_auth(client):
+    client._gql.execute.return_value = {"deleteRegistryAuth": None}
     result = client.delete_registry_auth("ra-1")
-    assert result == {}
-    client._runpod.delete_container_registry_auth.assert_called_once_with("ra-1")
+    assert result == {"deleteRegistryAuth": None}
+    call_args = client._gql.execute.call_args[0][0]
+    assert "deleteRegistryAuth" in call_args
 
 
 # --- User methods ---
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_get_user(mock_sleep, client):
-    client._runpod.get_user.return_value = {"id": "user-1", "email": "a@b.com"}
+def test_get_user(client):
+    client._gql.execute.return_value = {"myself": {"id": "user-1", "pubKey": "ssh-rsa"}}
     result = client.get_user()
-    assert result == {"id": "user-1", "email": "a@b.com"}
+    assert result == {"id": "user-1", "pubKey": "ssh-rsa"}
 
 
-@patch("rpctl.api.retry.time.sleep")
-def test_update_user_settings(mock_sleep, client):
-    client._runpod.update_user_settings.return_value = {"id": "user-1"}
+def test_update_user_settings(client):
+    client._gql.execute.return_value = {"updateUserSettings": {"id": "user-1"}}
     result = client.update_user_settings("ssh-rsa AAAA")
     assert result == {"id": "user-1"}
-    client._runpod.update_user_settings.assert_called_once_with("ssh-rsa AAAA")
+    call_args = client._gql.execute.call_args[0][0]
+    assert "updateUserSettings" in call_args

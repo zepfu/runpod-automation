@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import re
 from typing import Any
 
 import httpx
@@ -14,17 +15,31 @@ from rpctl.errors import ApiError, AuthenticationError
 logger = logging.getLogger(__name__)
 
 
+class _ApiKeyFilter(logging.Filter):
+    """Redact Bearer tokens from log messages."""
+
+    _BEARER_RE = re.compile(r"Bearer [A-Za-z0-9_-]+")
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if isinstance(record.msg, str):
+            record.msg = self._BEARER_RE.sub("Bearer ***", record.msg)
+        return True
+
+
+logger.addFilter(_ApiKeyFilter())
+
+
 class GraphQLClient:
     """Thin GraphQL client using httpx with automatic retry on transient errors."""
 
     def __init__(
         self,
         api_key: str,
-        base_url: str = GRAPHQL_URL,
+        url: str = GRAPHQL_URL,
         timeout: float = DEFAULT_API_TIMEOUT,
     ):
+        self._url = url
         self._client = httpx.Client(
-            base_url=base_url,
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
@@ -47,7 +62,7 @@ class GraphQLClient:
         logger.debug("GraphQL request: %s", query[:80])
 
         try:
-            response = self._client.post("", json=payload)
+            response = self._client.post(self._url, json=payload)
         except httpx.ConnectError as e:
             raise ApiError(f"Cannot connect to RunPod API: {e}", status_code=503) from e
         except httpx.TimeoutException as e:

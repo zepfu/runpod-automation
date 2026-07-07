@@ -25,3 +25,7 @@ TASKS.md
 agent-logs/
 logs/
 .claude/
+.analysis/
+.codex/
+.gemini/
+.grok/

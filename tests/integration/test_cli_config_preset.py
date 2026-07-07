@@ -44,7 +44,8 @@ def test_config_init():
     mock_keyring = MagicMock()
     with (
         patch("rpctl.cli.config.get_config_dir", return_value=Path("/tmp/rpctl-test")),
-        patch("rpctl.cli.config.typer.prompt", side_effect=["test-api-key", "default", "secure"]),
+        patch("rpctl.cli.config.Prompt.ask", return_value="test-api-key"),
+        patch("rpctl.cli.config.typer.prompt", side_effect=["default", "secure"]),
         patch.dict(sys.modules, {"keyring": mock_keyring}),
         patch("rpctl.cli.config.Settings.create_default") as mock_create,
     ):
@@ -59,7 +60,7 @@ def test_config_init_empty_key():
     """config init rejects empty API key."""
     with (
         patch("rpctl.cli.config.get_config_dir", return_value=Path("/tmp/rpctl-test")),
-        patch("rpctl.cli.config.typer.prompt", side_effect=["   ", "default", "secure"]),
+        patch("rpctl.cli.config.Prompt.ask", return_value="   "),
     ):
         result = runner.invoke(app, ["config", "init"])
         assert result.exit_code == 1
@@ -72,7 +73,7 @@ def test_config_set_key():
     mock_keyring = MagicMock()
     with (
         patch("rpctl.config.settings.Settings.load", return_value=_mock_settings()),
-        patch("rpctl.cli.config.typer.prompt", return_value="new-api-key"),
+        patch("rpctl.cli.config.Prompt.ask", return_value="new-api-key"),
         patch.dict(sys.modules, {"keyring": mock_keyring}),
     ):
         result = runner.invoke(app, ["config", "set-key"])
@@ -87,7 +88,7 @@ def test_config_set_key_empty():
     mock_keyring = MagicMock()
     with (
         patch("rpctl.config.settings.Settings.load", return_value=_mock_settings()),
-        patch("rpctl.cli.config.typer.prompt", return_value="   "),
+        patch("rpctl.cli.config.Prompt.ask", return_value="   "),
         patch.dict(sys.modules, {"keyring": mock_keyring}),
     ):
         result = runner.invoke(app, ["config", "set-key"])

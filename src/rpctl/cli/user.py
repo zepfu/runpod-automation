@@ -78,3 +78,29 @@ def set_ssh_key(
     except RpctlError as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def balance(ctx: typer.Context) -> None:
+    """Show account balance and spend limit."""
+    try:
+        svc = _get_user_service(ctx)
+        data = svc.get_account_info()
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(data, output_format=fmt, table_type="account_balance")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None
+
+
+@app.command()
+def spending(ctx: typer.Context) -> None:
+    """Show current hourly spend rate."""
+    try:
+        svc = _get_user_service(ctx)
+        data = svc.get_account_info()
+        fmt = ctx.obj.get("output_format", "table") if ctx.obj else "table"
+        output(data, output_format=fmt, table_type="account_spending")
+    except RpctlError as e:
+        err_console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(code=e.exit_code) from None

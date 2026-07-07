@@ -68,6 +68,18 @@ class EndpointService:
         """Stream output from a running job."""
         return self._client.endpoint_stream(endpoint_id, job_id)
 
+    def scale_endpoint(
+        self, endpoint_id: str, workers_min: int | None = None, workers_max: int | None = None
+    ) -> Endpoint:
+        """Scale endpoint workers."""
+        kwargs: dict[str, Any] = {}
+        if workers_min is not None:
+            kwargs["workersMin"] = workers_min
+        if workers_max is not None:
+            kwargs["workersMax"] = workers_max
+        raw = self._client.update_endpoint(endpoint_id, **kwargs)
+        return Endpoint.from_api(raw)
+
     def wait_until_ready(
         self,
         endpoint_id: str,
